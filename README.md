@@ -16,6 +16,7 @@ so far the following are defined:
  - echo: repeat existing elements specified number of times
  - unique: remove duplicates of both sorted and unsoreted vecs
  - reverse: reverse elements in vec
+ - every: returns vec comprising every other val provided
 
 i plan to make these generic.
 

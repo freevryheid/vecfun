@@ -13,19 +13,20 @@ module tests_int
 
     subroutine collect_tests_int(testsuite)
       type(unittest_type), allocatable, intent(out) :: testsuite(:)
-      testsuite = [                                       &
-          new_unittest("test for push",    test_push)     &
-        , new_unittest("test for pushto",  test_pushto)   &
-        , new_unittest("test for pushnew", test_pushnew)  &
-        , new_unittest("test for pop",     test_pop)      &
-        , new_unittest("test for popval",  test_popval)   &
-        , new_unittest("test for popall",  test_popval)   &
-        , new_unittest("test for concat",  test_concat)   &
-        , new_unittest("test for tally",   test_tally)    &
-        , new_unittest("test for echo",    test_echo)     &
-        , new_unittest("test for unique1",  test_unique1) &
-        , new_unittest("test for unique2",  test_unique2) &
-        , new_unittest("test for reverse",  test_reverse) &
+      testsuite = [                                      &
+          new_unittest("test for push",    test_push)    &
+        , new_unittest("test for pushto",  test_pushto)  &
+        , new_unittest("test for pushnew", test_pushnew) &
+        , new_unittest("test for pop",     test_pop)     &
+        , new_unittest("test for popval",  test_popval)  &
+        , new_unittest("test for popall",  test_popval)  &
+        , new_unittest("test for concat",  test_concat)  &
+        , new_unittest("test for tally",   test_tally)   &
+        , new_unittest("test for echo",    test_echo)    &
+        , new_unittest("test for unique1", test_unique1) &
+        , new_unittest("test for unique2", test_unique2) &
+        , new_unittest("test for reverse", test_reverse) &
+        , new_unittest("test for every",   test_every)   &
       ]
     end subroutine collect_tests_int
 
@@ -233,5 +234,20 @@ module tests_int
         if (allocated(error)) return
       end do
     end subroutine test_reverse
+
+    subroutine test_every(error)
+      type(error_type), allocatable, intent(out) :: error
+      integer, dimension(:), allocatable         :: vec1, vec2
+      integer                                    :: res, i
+      vec1 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+      vec2 = [3, 6, 9]
+      res = every(vec1, 3)
+      call check(error, res, 3)
+      if (allocated(error)) return
+      do i = 1, size(vec2)
+        call check(error, vec1(i), vec2(i))
+        if (allocated(error)) return
+      end do
+    end subroutine test_every
 
 end module tests_int
