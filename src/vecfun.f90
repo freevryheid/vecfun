@@ -14,6 +14,7 @@ module vecfun
   public :: tally
   public :: echo
   public :: unique
+  public :: reverse
 
   interface push
     module procedure push_int
@@ -54,6 +55,10 @@ module vecfun
   interface unique
     module procedure unique_int
   end interface unique
+
+  interface reverse
+    module procedure reverse_int
+  end interface reverse
 
   contains
 
@@ -134,9 +139,11 @@ module vecfun
     function tally_int(vec, val) result(res)
       integer, dimension(:), allocatable, intent(in)    :: vec
       integer, intent(in)                               :: val
-      integer                                           :: i, res
+      integer                                           :: i, j, k, res
       res = 0
-      do i = 1, size(vec)
+      j = lbound(vec, 1)
+      k = ubound(vec, 1)
+      do i = j, k
         if (vec(i).eq.val) res=res+1
       end do
     end function tally_int
@@ -157,25 +164,49 @@ module vecfun
       integer, dimension(:), allocatable, intent(inout) :: vec
       integer, dimension(:), allocatable                :: tmp
       logical, intent(in)                               :: sorted
-      integer                                           :: res, prev, i
+      integer                                           :: res, prev, i, j, k
       if (sorted) then
-        prev = vec(1)
+        j = lbound(vec, 1)
+        prev = vec(j)
         tmp = [prev]
-        do i = 2, size(vec)
+        j = lbound(vec, 1) + 1
+        k = ubound(vec, 1)
+        do i = j, k
           if (vec(i).ne.prev) then
             prev = vec(i)
             res = push_int(tmp, prev)
           end if
         end do
       else
-        tmp = [vec(1)]
-        do i = 2, size(vec)
-          if (.not. any(tmp.eq.vec(i))) res = push_int(tmp, vec(i))
+        j = lbound(vec, 1)
+        prev = vec(j)
+        tmp = [prev]
+        j = j + 1
+        k = ubound(vec, 1)
+        do i = j, k
+          prev = vec(i)
+          if (.not. any(tmp.eq.prev)) res = push_int(tmp, prev)
         end do
       end if
       vec = tmp
       res = size(vec)
     end function unique_int
+
+    function reverse_int(vec) result(res)
+      integer, dimension(:), allocatable, intent(inout) :: vec
+      integer                                           :: tmp
+      integer                                           :: j, k, res
+      j = lbound(vec, 1)
+      k = ubound(vec, 1)
+      do while (j.le.k)
+        tmp = vec(j)
+        vec(j) = vec(k)
+        vec(k) = tmp
+        j = j + 1
+        k = k - 1
+      end do
+      res = size(vec)
+     end function reverse_int
 
 end module vecfun
 

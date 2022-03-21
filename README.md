@@ -15,6 +15,7 @@ so far the following are defined:
  - tally: count number of elements having specified value
  - echo: repeat existing elements specified number of times
  - unique: remove duplicates of both sorted and unsoreted vecs
+ - reverse: reverse elements in vec
 
 i plan to make these generic.
 
