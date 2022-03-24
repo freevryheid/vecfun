@@ -21,24 +21,22 @@ module tests_int
         , new_unittest("test for popval",  test_popval)  &
         , new_unittest("test for popall",  test_popval)  &
         , new_unittest("test for concat",  test_concat)  &
-        , new_unittest("test for tally",   test_tally)   &
         , new_unittest("test for echo",    test_echo)    &
         , new_unittest("test for unique1", test_unique1) &
         , new_unittest("test for unique2", test_unique2) &
         , new_unittest("test for reverse", test_reverse) &
         , new_unittest("test for every",   test_every)   &
+        , new_unittest("test for zip",     test_zip)     &
       ]
     end subroutine collect_tests_int
 
     subroutine test_push(error)
       type(error_type), allocatable, intent(out) :: error
       integer, dimension(:), allocatable         :: vec1, vec2
-      integer                                    :: res, i
+      integer                                    :: i
       vec1 = [1, 2, 3]
       vec2 = [1, 2, 3, 4]
-      res = push(vec1, 4)
-      call check(error, res, 4)
-      if (allocated(error)) return
+      call push(vec1, 4)
       do i = 1, size(vec2)
         call check(error, vec1(i), vec2(i))
         if (allocated(error)) return
@@ -48,12 +46,10 @@ module tests_int
     subroutine test_pushto(error)
       type(error_type), allocatable, intent(out) :: error
       integer, dimension(:), allocatable         :: vec1, vec2
-      integer                                    :: res, i
+      integer                                    :: i
       vec1 = [1, 2, 3]
       vec2 = [4, 1, 2, 3]
-      res = pushto(vec1, 4, 1)
-      call check(error, res, 4)
-      if (allocated(error)) return
+      call pushto(vec1, 4, 1)
       do i = 1, size(vec2)
         call check(error, vec1(i), vec2(i))
         if (allocated(error)) return
@@ -63,12 +59,10 @@ module tests_int
     subroutine test_pushnew(error)
       type(error_type), allocatable, intent(out) :: error
       integer, dimension(:), allocatable         :: vec1, vec2
-      integer                                    :: res, i
+      integer                                    :: i
       vec1 = [1, 2, 3]
       vec2 = [1, 2, 3]
-      res = pushnew(vec1, 2)
-      call check(error, res, 3)
-      if (allocated(error)) return
+      call pushnew(vec1, 2)
       do i = 1, size(vec2)
         call check(error, vec1(i), vec2(i))
         if (allocated(error)) return
@@ -78,20 +72,16 @@ module tests_int
     subroutine test_pop(error)
       type(error_type), allocatable, intent(out) :: error
       integer, dimension(:), allocatable         :: vec1, vec2, vec3
-      integer                                    :: res, i
+      integer                                    :: i
       vec1 = [1, 2, 3, 4]
       vec2 = [1, 2, 3]
       vec3 = [2, 3]
-      res = pop(vec1)
-      call check(error, res, 4)
-      if (allocated(error)) return
+      call pop(vec1)
       do i = 1, size(vec2)
         call check(error, vec1(i), vec2(i))
         if (allocated(error)) return
       end do
-      res = pop(vec1, 1)
-      call check(error, res, 1)
-      if (allocated(error)) return
+      call pop(vec1, 1)
       do i = 1, size(vec3)
         call check(error, vec1(i), vec3(i))
         if (allocated(error)) return
@@ -101,12 +91,10 @@ module tests_int
     subroutine test_popval(error)
       type(error_type), allocatable, intent(out) :: error
       integer, dimension(:), allocatable         :: vec1, vec2
-      integer                                    :: res, i
+      integer                                    :: i
       vec1 = [1, 2, 3, 3, 3, 3]
       vec2 = [1, 2, 3, 3, 3]
-      res = popval(vec1, 3)
-      call check(error, res, 3)
-      if (allocated(error)) return
+      call popval(vec1, 3)
       do i = 1, size(vec2)
         call check(error, vec1(i), vec2(i))
         if (allocated(error)) return
@@ -116,12 +104,10 @@ module tests_int
     subroutine test_popall(error)
       type(error_type), allocatable, intent(out) :: error
       integer, dimension(:), allocatable         :: vec1, vec2
-      integer                                    :: res, i
+      integer                                    :: i
       vec1 = [1, 2, 3, 3, 3, 3]
       vec2 = [1, 2]
-      res = popall(vec1, 3)
-      call check(error, res, 4)
-      if (allocated(error)) return
+      call popall(vec1, 3)
       do i = 1, size(vec2)
         call check(error, vec1(i), vec2(i))
         if (allocated(error)) return
@@ -131,38 +117,24 @@ module tests_int
     subroutine test_concat(error)
       type(error_type), allocatable, intent(out) :: error
       integer, dimension(:), allocatable         :: vec1, vec2, vec3
-      integer                                    :: res, i
+      integer                                    :: i
       vec1 = [1, 2, 3, 4]
       vec2 = [5, 6, 7]
       vec3 = [1, 2, 3, 4, 5, 6, 7]
-      res = concat(vec1, vec2)
-      call check(error, res, 7)
-      if (allocated(error)) return
+      call concat(vec1, vec2)
       do i = 1, size(vec3)
         call check(error, vec1(i), vec3(i))
         if (allocated(error)) return
       end do
     end subroutine test_concat
 
-    subroutine test_tally(error)
-      type(error_type), allocatable, intent(out) :: error
-      integer, dimension(:), allocatable         :: vec1
-      integer                                    :: res
-      vec1 = [1, 2, 3, 3, 3, 3]
-      res = tally(vec1, 3)
-      call check(error, res, 4)
-      if (allocated(error)) return
-    end subroutine test_tally
-
     subroutine test_echo(error)
       type(error_type), allocatable, intent(out) :: error
       integer, dimension(:), allocatable         :: vec1, vec2
-      integer                                    :: res, i
+      integer                                    :: i
       vec1 = [1, 2, 3]
       vec2 = [1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3]
-      res = echo(vec1, 3)
-      call check(error, res, 12)
-      if (allocated(error)) return
+      call echo(vec1, 3)
       do i = 1, size(vec2)
         call check(error, vec1(i), vec2(i))
         if (allocated(error)) return
@@ -172,20 +144,16 @@ module tests_int
     subroutine test_unique1(error)
       type(error_type), allocatable, intent(out) :: error
       integer, dimension(:), allocatable         :: vec1, vec2, vec3
-      integer                                    :: res, i
+      integer                                    :: i
       vec1 = [1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3]
       vec2 = [1, 2, 3]
       vec3 = [1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3]
-      res = unique(vec1, .false.)
-      call check(error, res, 3)
-      if (allocated(error)) return
+      call unique(vec1, .false.)
       do i = 1, size(vec2)
         call check(error, vec1(i), vec2(i))
         if (allocated(error)) return
       end do
-      res = unique(vec3, .true.)
-      call check(error, res, 3)
-      if (allocated(error)) return
+      call unique(vec3, .true.)
       do i = 1, size(vec2)
         call check(error, vec3(i), vec2(i))
         if (allocated(error)) return
@@ -201,15 +169,15 @@ module tests_int
       vec1 = [res]
       do i = 2, 10000
         res = dist_rand(1)
-        res = push(vec1, res)
+        call push(vec1, res)
       end do
       vec2 = vec1
       call watch('init')
       call sort(vec1)
       call watch('sort vec1')
-      res = unique(vec1, .true.)
+      call unique(vec1, .true.)
       call watch('unique sorted')
-      res = unique(vec2, .false.)
+      call unique(vec2, .false.)
       call watch('unique unsorted')
       call sort(vec2)
       call watch('sort vec2')
@@ -223,12 +191,10 @@ module tests_int
     subroutine test_reverse(error)
       type(error_type), allocatable, intent(out) :: error
       integer, dimension(:), allocatable         :: vec1, vec2
-      integer                                    :: res, i
+      integer                                    :: i
       vec1 = [1, 2, 3]
       vec2 = [3, 2, 1]
-      res = reverse(vec1)
-      call check(error, res, 3)
-      if (allocated(error)) return
+      call reverse(vec1)
       do i = 1, size(vec2)
         call check(error, vec1(i), vec2(i))
         if (allocated(error)) return
@@ -238,16 +204,28 @@ module tests_int
     subroutine test_every(error)
       type(error_type), allocatable, intent(out) :: error
       integer, dimension(:), allocatable         :: vec1, vec2
-      integer                                    :: res, i
+      integer                                    :: i
       vec1 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
       vec2 = [3, 6, 9]
-      res = every(vec1, 3)
-      call check(error, res, 3)
-      if (allocated(error)) return
+      call every(vec1, 3)
       do i = 1, size(vec2)
         call check(error, vec1(i), vec2(i))
         if (allocated(error)) return
       end do
     end subroutine test_every
+
+    subroutine test_zip(error)
+      type(error_type), allocatable, intent(out) :: error
+      integer, dimension(:), allocatable         :: vec1, vec2, vec3
+      integer                                    :: i
+      vec1 = [1, 2, 3]
+      vec2 = [3, 6, 9]
+      vec3 = [1, 3, 2, 6, 3, 9]
+      call zip(vec1, vec2)
+      do i = 1, size(vec3)
+        call check(error, vec1(i), vec3(i))
+        if (allocated(error)) return
+      end do
+    end subroutine test_zip
 
 end module tests_int

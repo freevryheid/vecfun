@@ -4,6 +4,6 @@ program main
   integer, allocatable :: a(:)
   a = [1, 2, 3, 4, 5]
   print *, a
-  print *, every(a,6)
+  call every(a, 2)
   print *, a
 end program main

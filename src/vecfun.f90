@@ -16,13 +16,14 @@ module vecfun
   public :: popval
   public :: popall
   public :: concat
-  public :: tally
   public :: echo
   public :: unique
   public :: reverse
   public :: every
+  public :: zip
 
   interface push
+    !! adds val pushed to the end of the input vector
     module procedure push_i1
     module procedure push_i2
     module procedure push_i4
@@ -33,9 +34,11 @@ module vecfun
     module procedure push_c4
     module procedure push_c8
     module procedure push_c16
+    module procedure push_str
   end interface push
 
   interface pushto
+    !! adds val pushed to idx of the input vector
     module procedure pushto_i1
     module procedure pushto_i2
     module procedure pushto_i4
@@ -46,9 +49,12 @@ module vecfun
     module procedure pushto_c4
     module procedure pushto_c8
     module procedure pushto_c16
+    module procedure pushto_str
   end interface pushto
 
   interface pushnew
+    !! adds val pushed to the end of the input vector
+    !! but only if val is not already in the input vector.
     module procedure pushnew_i1
     module procedure pushnew_i2
     module procedure pushnew_i4
@@ -59,9 +65,12 @@ module vecfun
     module procedure pushnew_c4
     module procedure pushnew_c8
     module procedure pushnew_c16
+    module procedure pushnew_str
   end interface pushnew
 
   interface pop
+    !! delete the last element in the input vector or if idx is provided
+    !! then delete the element at index idx
     module procedure pop_i1
     module procedure pop_i2
     module procedure pop_i4
@@ -72,6 +81,7 @@ module vecfun
     module procedure pop_c4
     module procedure pop_c8
     module procedure pop_c16
+    module procedure pop_str
   end interface pop
 
   interface popval
@@ -85,6 +95,7 @@ module vecfun
     module procedure popval_c4
     module procedure popval_c8
     module procedure popval_c16
+    module procedure popval_str
   end interface popval
 
   interface popall
@@ -98,6 +109,7 @@ module vecfun
     module procedure popall_c4
     module procedure popall_c8
     module procedure popall_c16
+    module procedure popall_str
   end interface popall
 
   interface concat
@@ -111,20 +123,8 @@ module vecfun
     module procedure concat_c4
     module procedure concat_c8
     module procedure concat_c16
+    module procedure concat_str
   end interface concat
-
-  interface tally
-    module procedure tally_i1
-    module procedure tally_i2
-    module procedure tally_i4
-    module procedure tally_i8
-    module procedure tally_r4
-    module procedure tally_r8
-    module procedure tally_r16
-    module procedure tally_c4
-    module procedure tally_c8
-    module procedure tally_c16
-  end interface tally
 
   interface echo
     module procedure echo_i1
@@ -137,6 +137,7 @@ module vecfun
     module procedure echo_c4
     module procedure echo_c8
     module procedure echo_c16
+    module procedure echo_str
   end interface echo
 
   interface unique
@@ -150,6 +151,7 @@ module vecfun
     module procedure unique_c4
     module procedure unique_c8
     module procedure unique_c16
+    module procedure unique_str
   end interface unique
 
   interface reverse
@@ -163,6 +165,7 @@ module vecfun
     module procedure reverse_c4
     module procedure reverse_c8
     module procedure reverse_c16
+    module procedure reverse_str
   end interface reverse
 
   interface every
@@ -176,461 +179,411 @@ module vecfun
     module procedure every_c4
     module procedure every_c8
     module procedure every_c16
+    module procedure every_str
   end interface every
+
+  interface zip
+    module procedure zip_i1
+    module procedure zip_i2
+    module procedure zip_i4
+    module procedure zip_i8
+    module procedure zip_r4
+    module procedure zip_r8
+    module procedure zip_r16
+    module procedure zip_c4
+    module procedure zip_c8
+    module procedure zip_c16
+    module procedure zip_str
+  end interface zip
 
   contains
 
-    function push_i1(vec, val) result(res)
+    subroutine push_i1(vec, val)
       integer(kind=i1), dimension(:), allocatable, intent(inout) :: vec
       integer(kind=i1), intent(in) :: val
-      integer :: res
       vec = [vec, val]
-      res = size(vec)
-    end function push_i1
+    end subroutine push_i1
 
-    function push_i2(vec, val) result(res)
+    subroutine push_i2(vec, val)
       integer(kind=i2), dimension(:), allocatable, intent(inout) :: vec
       integer(kind=i2), intent(in) :: val
-      integer :: res
       vec = [vec, val]
-      res = size(vec)
-    end function push_i2
+    end subroutine push_i2
 
-    function push_i4(vec, val) result(res)
+    subroutine push_i4(vec, val)
       integer(kind=i4), dimension(:), allocatable, intent(inout) :: vec
       integer(kind=i4), intent(in) :: val
-      integer :: res
       vec = [vec, val]
-      res = size(vec)
-    end function push_i4
+    end subroutine push_i4
 
-    function push_i8(vec, val) result(res)
+    subroutine push_i8(vec, val)
       integer(kind=i8), dimension(:), allocatable, intent(inout) :: vec
       integer(kind=i8), intent(in) :: val
-      integer :: res
       vec = [vec, val]
-      res = size(vec)
-    end function push_i8
+    end subroutine push_i8
 
-    function push_r4(vec, val) result(res)
+    subroutine push_r4(vec, val)
       real(kind=r4), dimension(:), allocatable, intent(inout) :: vec
       real(kind=r4), intent(in) :: val
-      integer :: res
       vec = [vec, val]
-      res = size(vec)
-    end function push_r4
+    end subroutine push_r4
 
-    function push_r8(vec, val) result(res)
+    subroutine push_r8(vec, val)
       real(kind=r8), dimension(:), allocatable, intent(inout) :: vec
       real(kind=r8), intent(in) :: val
-      integer :: res
       vec = [vec, val]
-      res = size(vec)
-    end function push_r8
+    end subroutine push_r8
 
-    function push_r16(vec, val) result(res)
+    subroutine push_r16(vec, val)
       real(kind=r16), dimension(:), allocatable, intent(inout) :: vec
       real(kind=r16), intent(in) :: val
-      integer :: res
       vec = [vec, val]
-      res = size(vec)
-    end function push_r16
+    end subroutine push_r16
 
-    function push_c4(vec, val) result(res)
+    subroutine push_c4(vec, val)
       complex(kind=r4), dimension(:), allocatable, intent(inout) :: vec
       complex(kind=r4), intent(in) :: val
-      integer :: res
       vec = [vec, val]
-      res = size(vec)
-    end function push_c4
+    end subroutine push_c4
 
-    function push_c8(vec, val) result(res)
+    subroutine push_c8(vec, val)
       complex(kind=r8), dimension(:), allocatable, intent(inout) :: vec
       complex(kind=r8), intent(in) :: val
-      integer :: res
       vec = [vec, val]
-      res = size(vec)
-    end function push_c8
+    end subroutine push_c8
 
-    function push_c16(vec, val) result(res)
+    subroutine push_c16(vec, val)
       complex(kind=r16), dimension(:), allocatable, intent(inout) :: vec
       complex(kind=r16), intent(in) :: val
-      integer :: res
       vec = [vec, val]
-      res = size(vec)
-    end function push_c16
+    end subroutine push_c16
 
-    function pushto_i1(vec, val, idx) result(res)
+    subroutine push_str(vec, val)
+      character(:), dimension(:), allocatable, intent(inout) :: vec
+      character(*), intent(in) :: val
+      vec = [vec, val]
+    end subroutine push_str
+
+    subroutine pushto_i1(vec, val, idx)
       integer(kind=i1), dimension(:), allocatable, intent(inout) :: vec
       integer(kind=i1), intent(in) :: val
       integer, intent(in) :: idx
-      integer :: res
       vec = [vec(:idx-1), val, vec(idx:)]
-      res = size(vec)
-    end function pushto_i1
+    end subroutine pushto_i1
 
-    function pushto_i2(vec, val, idx) result(res)
+    subroutine pushto_i2(vec, val, idx)
       integer(kind=i2), dimension(:), allocatable, intent(inout) :: vec
       integer(kind=i2), intent(in) :: val
       integer, intent(in) :: idx
-      integer :: res
       vec = [vec(:idx-1), val, vec(idx:)]
-      res = size(vec)
-    end function pushto_i2
+    end subroutine pushto_i2
 
-    function pushto_i4(vec, val, idx) result(res)
+    subroutine pushto_i4(vec, val, idx)
       integer(kind=i4), dimension(:), allocatable, intent(inout) :: vec
       integer(kind=i4), intent(in) :: val
       integer, intent(in) :: idx
-      integer :: res
       vec = [vec(:idx-1), val, vec(idx:)]
-      res = size(vec)
-    end function pushto_i4
+    end subroutine pushto_i4
 
-    function pushto_i8(vec, val, idx) result(res)
+    subroutine pushto_i8(vec, val, idx)
       integer(kind=i8), dimension(:), allocatable, intent(inout) :: vec
       integer(kind=i8), intent(in) :: val
       integer, intent(in) :: idx
-      integer :: res
       vec = [vec(:idx-1), val, vec(idx:)]
-      res = size(vec)
-    end function pushto_i8
+    end subroutine pushto_i8
 
-    function pushto_r4(vec, val, idx) result(res)
+    subroutine pushto_r4(vec, val, idx)
       real(kind=r4), dimension(:), allocatable, intent(inout) :: vec
       real(kind=r4), intent(in) :: val
       integer, intent(in) :: idx
-      integer :: res
       vec = [vec(:idx-1), val, vec(idx:)]
-      res = size(vec)
-    end function pushto_r4
+    end subroutine pushto_r4
 
-    function pushto_r8(vec, val, idx) result(res)
+    subroutine pushto_r8(vec, val, idx)
       real(kind=r8), dimension(:), allocatable, intent(inout) :: vec
       real(kind=r8), intent(in) :: val
       integer, intent(in) :: idx
-      integer :: res
       vec = [vec(:idx-1), val, vec(idx:)]
-      res = size(vec)
-    end function pushto_r8
+    end subroutine pushto_r8
 
-    function pushto_r16(vec, val, idx) result(res)
+    subroutine pushto_r16(vec, val, idx)
       real(kind=r16), dimension(:), allocatable, intent(inout) :: vec
       real(kind=r16), intent(in) :: val
       integer, intent(in) :: idx
-      integer :: res
       vec = [vec(:idx-1), val, vec(idx:)]
-      res = size(vec)
-    end function pushto_r16
+    end subroutine pushto_r16
 
-    function pushto_c4(vec, val, idx) result(res)
+    subroutine pushto_c4(vec, val, idx)
       complex(kind=r4), dimension(:), allocatable, intent(inout) :: vec
       complex(kind=r4), intent(in) :: val
       integer, intent(in) :: idx
-      integer :: res
       vec = [vec(:idx-1), val, vec(idx:)]
-      res = size(vec)
-    end function pushto_c4
+    end subroutine pushto_c4
 
-    function pushto_c8(vec, val, idx) result(res)
+    subroutine pushto_c8(vec, val, idx)
       complex(kind=r8), dimension(:), allocatable, intent(inout) :: vec
       complex(kind=r8), intent(in) :: val
       integer, intent(in) :: idx
-      integer :: res
       vec = [vec(:idx-1), val, vec(idx:)]
-      res = size(vec)
-    end function pushto_c8
+    end subroutine pushto_c8
 
-    function pushto_c16(vec, val, idx) result(res)
+    subroutine pushto_c16(vec, val, idx)
       complex(kind=r16), dimension(:), allocatable, intent(inout) :: vec
       complex(kind=r16), intent(in) :: val
       integer, intent(in) :: idx
-      integer :: res
       vec = [vec(:idx-1), val, vec(idx:)]
-      res = size(vec)
-    end function pushto_c16
+    end subroutine pushto_c16
 
-    function pushnew_i1(vec, val) result(res)
+    subroutine pushto_str(vec, val, idx)
+      character(:), dimension(:), allocatable, intent(inout) :: vec
+      character(*), intent(in) :: val
+      integer, intent(in) :: idx
+      vec = [vec(:idx-1), val, vec(idx:)]
+    end subroutine pushto_str
+
+    subroutine pushnew_i1(vec, val)
       integer(kind=i1), dimension(:), allocatable, intent(inout) :: vec
       integer(kind=i1), intent(in) :: val
-      integer :: res
-      if (.not.any(vec.eq.val)) then
-        vec = [vec, val]
-      end if
-      res = size(vec)
-    end function pushnew_i1
+      if (.not.any(vec.eq.val)) vec = [vec, val]
+    end subroutine pushnew_i1
 
-    function pushnew_i2(vec, val) result(res)
+    subroutine pushnew_i2(vec, val)
       integer(kind=i2), dimension(:), allocatable, intent(inout) :: vec
       integer(kind=i2), intent(in) :: val
-      integer :: res
-      if (.not.any(vec.eq.val)) then
-        vec = [vec, val]
-      end if
-      res = size(vec)
-    end function pushnew_i2
+      if (.not.any(vec.eq.val)) vec = [vec, val]
+    end subroutine pushnew_i2
 
-    function pushnew_i4(vec, val) result(res)
+    subroutine pushnew_i4(vec, val)
       integer(kind=i4), dimension(:), allocatable, intent(inout) :: vec
       integer(kind=i4), intent(in) :: val
-      integer :: res
-      if (.not.any(vec.eq.val)) then
-        vec = [vec, val]
-      end if
-      res = size(vec)
-    end function pushnew_i4
+      if (.not.any(vec.eq.val)) vec = [vec, val]
+    end subroutine pushnew_i4
 
-    function pushnew_i8(vec, val) result(res)
+    subroutine pushnew_i8(vec, val)
       integer(kind=i8), dimension(:), allocatable, intent(inout) :: vec
       integer(kind=i8), intent(in) :: val
-      integer :: res
-      if (.not.any(vec.eq.val)) then
-        vec = [vec, val]
-      end if
-      res = size(vec)
-    end function pushnew_i8
+      if (.not.any(vec.eq.val)) vec = [vec, val]
+    end subroutine pushnew_i8
 
-    function pushnew_r4(vec, val) result(res)
+    subroutine pushnew_r4(vec, val)
       real(kind=r4), dimension(:), allocatable, intent(inout) :: vec
       real(kind=r4), intent(in) :: val
-      integer :: res
-      if (.not.any(vec.eq.val)) then
-        vec = [vec, val]
-      end if
-      res = size(vec)
-    end function pushnew_r4
+      if (.not.any(vec.eq.val)) vec = [vec, val]
+    end subroutine pushnew_r4
 
-    function pushnew_r8(vec, val) result(res)
+    subroutine pushnew_r8(vec, val)
       real(kind=r8), dimension(:), allocatable, intent(inout) :: vec
       real(kind=r8), intent(in) :: val
-      integer :: res
-      if (.not.any(vec.eq.val)) then
-        vec = [vec, val]
-      end if
-      res = size(vec)
-    end function pushnew_r8
+      if (.not.any(vec.eq.val)) vec = [vec, val]
+    end subroutine pushnew_r8
 
-    function pushnew_r16(vec, val) result(res)
+    subroutine pushnew_r16(vec, val)
       real(kind=r16), dimension(:), allocatable, intent(inout) :: vec
       real(kind=r16), intent(in) :: val
-      integer :: res
-      if (.not.any(vec.eq.val)) then
-        vec = [vec, val]
-      end if
-      res = size(vec)
-    end function pushnew_r16
+      if (.not.any(vec.eq.val)) vec = [vec, val]
+    end subroutine pushnew_r16
 
-    function pushnew_c4(vec, val) result(res)
+    subroutine pushnew_c4(vec, val)
       complex(kind=r4), dimension(:), allocatable, intent(inout) :: vec
       complex(kind=r4), intent(in) :: val
-      integer :: res
-      if (.not.any(vec.eq.val)) then
-        vec = [vec, val]
-      end if
-      res = size(vec)
-    end function pushnew_c4
+      if (.not.any(vec.eq.val)) vec = [vec, val]
+    end subroutine pushnew_c4
 
-    function pushnew_c8(vec, val) result(res)
+    subroutine pushnew_c8(vec, val)
       complex(kind=r8), dimension(:), allocatable, intent(inout) :: vec
       complex(kind=r8), intent(in) :: val
-      integer :: res
-      if (.not.any(vec.eq.val)) then
-        vec = [vec, val]
-      end if
-      res = size(vec)
-    end function pushnew_c8
+      if (.not.any(vec.eq.val)) vec = [vec, val]
+    end subroutine pushnew_c8
 
-    function pushnew_c16(vec, val) result(res)
+    subroutine pushnew_c16(vec, val)
       complex(kind=r16), dimension(:), allocatable, intent(inout) :: vec
       complex(kind=r16), intent(in) :: val
-      integer :: res
-      if (.not.any(vec.eq.val)) then
-        vec = [vec, val]
-      end if
-      res = size(vec)
-    end function pushnew_c16
+      if (.not.any(vec.eq.val)) vec = [vec, val]
+    end subroutine pushnew_c16
 
-    function pop_i1(vec, idx) result(res)
+    subroutine pushnew_str(vec, val)
+      character(:), dimension(:), allocatable, intent(inout) :: vec
+      character(*), intent(in) :: val
+      if (.not.any(vec.eq.val)) vec = [vec, val]
+    end subroutine pushnew_str
+
+    subroutine pop_i1(vec, idx)
       integer(kind=i1), dimension(:), allocatable, intent(inout) :: vec
       integer, intent(in), optional :: idx
       integer :: tmp
-      integer(kind=i1) :: res
       if (.not.present(idx)) then
         tmp = size(vec)
       else
         tmp = idx
       end if
-      res = vec(tmp)
       if (tmp.le.size(vec)) then
         vec = [vec(:tmp-1), vec(tmp+1:)]
       else
         vec = [vec(:tmp-1)]
       end if
-    end function pop_i1
+    end subroutine pop_i1
 
-    function pop_i2(vec, idx) result(res)
+    subroutine pop_i2(vec, idx)
       integer(kind=i2), dimension(:), allocatable, intent(inout) :: vec
       integer, intent(in), optional :: idx
       integer :: tmp
-      integer(kind=i2) :: res
       if (.not.present(idx)) then
         tmp = size(vec)
       else
         tmp = idx
       end if
-      res = vec(tmp)
       if (tmp.le.size(vec)) then
         vec = [vec(:tmp-1), vec(tmp+1:)]
       else
         vec = [vec(:tmp-1)]
       end if
-    end function pop_i2
+    end subroutine pop_i2
 
-    function pop_i4(vec, idx) result(res)
+    subroutine pop_i4(vec, idx)
       integer(kind=i4), dimension(:), allocatable, intent(inout) :: vec
       integer, intent(in), optional :: idx
       integer :: tmp
-      integer(kind=i4) :: res
       if (.not.present(idx)) then
         tmp = size(vec)
       else
         tmp = idx
       end if
-      res = vec(tmp)
       if (tmp.le.size(vec)) then
         vec = [vec(:tmp-1), vec(tmp+1:)]
       else
         vec = [vec(:tmp-1)]
       end if
-    end function pop_i4
+    end subroutine pop_i4
 
-    function pop_i8(vec, idx) result(res)
+    subroutine pop_i8(vec, idx)
       integer(kind=i8), dimension(:), allocatable, intent(inout) :: vec
       integer, intent(in), optional :: idx
       integer :: tmp
-      integer(kind=i8) :: res
       if (.not.present(idx)) then
         tmp = size(vec)
       else
         tmp = idx
       end if
-      res = vec(tmp)
       if (tmp.le.size(vec)) then
         vec = [vec(:tmp-1), vec(tmp+1:)]
       else
         vec = [vec(:tmp-1)]
       end if
-    end function pop_i8
+    end subroutine pop_i8
 
-    function pop_r4(vec, idx) result(res)
+    subroutine pop_r4(vec, idx)
       real(kind=r4), dimension(:), allocatable, intent(inout) :: vec
       integer, intent(in), optional :: idx
       integer :: tmp
-      integer :: res
       if (.not.present(idx)) then
         tmp = size(vec)
       else
         tmp = idx
       end if
-      res = vec(tmp)
       if (tmp.le.size(vec)) then
         vec = [vec(:tmp-1), vec(tmp+1:)]
       else
         vec = [vec(:tmp-1)]
       end if
-    end function pop_r4
+    end subroutine pop_r4
 
-    function pop_r8(vec, idx) result(res)
+    subroutine pop_r8(vec, idx)
       real(kind=r8), dimension(:), allocatable, intent(inout) :: vec
       integer, intent(in), optional :: idx
       integer :: tmp
-      integer :: res
       if (.not.present(idx)) then
         tmp = size(vec)
       else
         tmp = idx
       end if
-      res = vec(tmp)
       if (tmp.le.size(vec)) then
         vec = [vec(:tmp-1), vec(tmp+1:)]
       else
         vec = [vec(:tmp-1)]
       end if
-    end function pop_r8
+    end subroutine pop_r8
 
-    function pop_r16(vec, idx) result(res)
+    subroutine pop_r16(vec, idx)
       real(kind=r16), dimension(:), allocatable, intent(inout) :: vec
       integer, intent(in), optional :: idx
       integer :: tmp
-      integer :: res
       if (.not.present(idx)) then
         tmp = size(vec)
       else
         tmp = idx
       end if
-      res = vec(tmp)
       if (tmp.le.size(vec)) then
         vec = [vec(:tmp-1), vec(tmp+1:)]
       else
         vec = [vec(:tmp-1)]
       end if
-    end function pop_r16
+    end subroutine pop_r16
 
-    function pop_c4(vec, idx) result(res)
+    subroutine pop_c4(vec, idx)
       complex(kind=r4), dimension(:), allocatable, intent(inout) :: vec
       integer, intent(in), optional :: idx
       integer :: tmp
-      integer :: res
       if (.not.present(idx)) then
         tmp = size(vec)
       else
         tmp = idx
       end if
-      res = vec(tmp)
       if (tmp.le.size(vec)) then
         vec = [vec(:tmp-1), vec(tmp+1:)]
       else
         vec = [vec(:tmp-1)]
       end if
-    end function pop_c4
+    end subroutine pop_c4
 
-    function pop_c8(vec, idx) result(res)
+    subroutine pop_c8(vec, idx)
       complex(kind=r8), dimension(:), allocatable, intent(inout) :: vec
       integer, intent(in), optional :: idx
       integer :: tmp
-      integer :: res
       if (.not.present(idx)) then
         tmp = size(vec)
       else
         tmp = idx
       end if
-      res = vec(tmp)
       if (tmp.le.size(vec)) then
         vec = [vec(:tmp-1), vec(tmp+1:)]
       else
         vec = [vec(:tmp-1)]
       end if
-    end function pop_c8
+    end subroutine pop_c8
 
-    function pop_c16(vec, idx) result(res)
+    subroutine pop_c16(vec, idx)
       complex(kind=r16), dimension(:), allocatable, intent(inout) :: vec
       integer, intent(in), optional :: idx
       integer :: tmp
-      integer :: res
       if (.not.present(idx)) then
         tmp = size(vec)
       else
         tmp = idx
       end if
-      res = vec(tmp)
       if (tmp.le.size(vec)) then
         vec = [vec(:tmp-1), vec(tmp+1:)]
       else
         vec = [vec(:tmp-1)]
       end if
-    end function pop_c16
+    end subroutine pop_c16
 
-    function popval_i1(vec, val) result(idx)
+    subroutine pop_str(vec, idx)
+      character(:), dimension(:), allocatable, intent(inout) :: vec
+      integer, intent(in), optional :: idx
+      integer :: tmp
+      if (.not.present(idx)) then
+        tmp = size(vec)
+      else
+        tmp = idx
+      end if
+      if (tmp.le.size(vec)) then
+        vec = [vec(:tmp-1), vec(tmp+1:)]
+      else
+        vec = [vec(:tmp-1)]
+      end if
+    end subroutine pop_str
+
+    subroutine popval_i1(vec, val)
       integer(kind=i1), dimension(:), allocatable, intent(inout) :: vec
       integer(kind=i1), intent(in) :: val
       integer, dimension(1) :: tmp
@@ -638,9 +591,9 @@ module vecfun
       tmp = findloc(vec, val)
       idx = tmp(1)
       vec = [vec(:idx-1), vec(idx:)]
-    end function popval_i1
+    end subroutine popval_i1
 
-    function popval_i2(vec, val) result(idx)
+    subroutine popval_i2(vec, val)
       integer(kind=i2), dimension(:), allocatable, intent(inout) :: vec
       integer(kind=i2), intent(in) :: val
       integer, dimension(1) :: tmp
@@ -648,9 +601,9 @@ module vecfun
       tmp = findloc(vec, val)
       idx = tmp(1)
       vec = [vec(:idx-1), vec(idx:)]
-    end function popval_i2
+    end subroutine popval_i2
 
-    function popval_i4(vec, val) result(idx)
+    subroutine popval_i4(vec, val)
       integer(kind=i4), dimension(:), allocatable, intent(inout) :: vec
       integer(kind=i4), intent(in) :: val
       integer, dimension(1) :: tmp
@@ -658,9 +611,9 @@ module vecfun
       tmp = findloc(vec, val)
       idx = tmp(1)
       vec = [vec(:idx-1), vec(idx:)]
-    end function popval_i4
+    end subroutine popval_i4
 
-    function popval_i8(vec, val) result(idx)
+    subroutine popval_i8(vec, val)
       integer(kind=i8), dimension(:), allocatable, intent(inout) :: vec
       integer(kind=i8), intent(in) :: val
       integer, dimension(1) :: tmp
@@ -668,19 +621,19 @@ module vecfun
       tmp = findloc(vec, val)
       idx = tmp(1)
       vec = [vec(:idx-1), vec(idx:)]
-    end function popval_i8
+    end subroutine popval_i8
 
-    function popval_r4(vec, val) result(idx)
+    subroutine popval_r4(vec, val)
       real(kind=r4), dimension(:), allocatable, intent(inout) :: vec
       real(kind=r4), intent(in) :: val
       integer, dimension(1) :: tmp
       integer :: idx
-      tmp = findloc(vec, val)
+      tmp = findloc(vec, val, 1)
       idx = tmp(1)
       vec = [vec(:idx-1), vec(idx:)]
-    end function popval_r4
+    end subroutine popval_r4
 
-    function popval_r8(vec, val) result(idx)
+    subroutine popval_r8(vec, val)
       real(kind=r8), dimension(:), allocatable, intent(inout) :: vec
       real(kind=r8), intent(in) :: val
       integer, dimension(1) :: tmp
@@ -688,9 +641,9 @@ module vecfun
       tmp = findloc(vec, val)
       idx = tmp(1)
       vec = [vec(:idx-1), vec(idx:)]
-    end function popval_r8
+    end subroutine popval_r8
 
-    function popval_r16(vec, val) result(idx)
+    subroutine popval_r16(vec, val)
       real(kind=r16), dimension(:), allocatable, intent(inout) :: vec
       real(kind=r16), intent(in) :: val
       integer, dimension(1) :: tmp
@@ -698,9 +651,9 @@ module vecfun
       tmp = findloc(vec, val)
       idx = tmp(1)
       vec = [vec(:idx-1), vec(idx:)]
-    end function popval_r16
+    end subroutine popval_r16
 
-    function popval_c4(vec, val) result(idx)
+    subroutine popval_c4(vec, val)
       complex(kind=r4), dimension(:), allocatable, intent(inout) :: vec
       complex(kind=r4), intent(in) :: val
       integer, dimension(1) :: tmp
@@ -708,9 +661,9 @@ module vecfun
       tmp = findloc(vec, val)
       idx = tmp(1)
       vec = [vec(:idx-1), vec(idx:)]
-    end function popval_c4
+    end subroutine popval_c4
 
-    function popval_c8(vec, val) result(idx)
+    subroutine popval_c8(vec, val)
       complex(kind=r8), dimension(:), allocatable, intent(inout) :: vec
       complex(kind=r8), intent(in) :: val
       integer, dimension(1) :: tmp
@@ -718,9 +671,9 @@ module vecfun
       tmp = findloc(vec, val)
       idx = tmp(1)
       vec = [vec(:idx-1), vec(idx:)]
-    end function popval_c8
+    end subroutine popval_c8
 
-    function popval_c16(vec, val) result(idx)
+    subroutine popval_c16(vec, val)
       complex(kind=r16), dimension(:), allocatable, intent(inout) :: vec
       complex(kind=r16), intent(in) :: val
       integer, dimension(1) :: tmp
@@ -728,449 +681,299 @@ module vecfun
       tmp = findloc(vec, val)
       idx = tmp(1)
       vec = [vec(:idx-1), vec(idx:)]
-    end function popval_c16
+    end subroutine popval_c16
 
-    function popall_i1(vec, val) result(idx)
+    subroutine popval_str(vec, val)
+      character(:), dimension(:), allocatable, intent(inout) :: vec
+      character(*), intent(in) :: val
+      integer, dimension(1) :: tmp
+      integer :: idx
+      tmp = findloc(vec, val)
+      idx = tmp(1)
+      vec = [vec(:idx-1), vec(idx:)]
+    end subroutine popval_str
+
+    subroutine popall_i1(vec, val)
       integer(kind=i1), dimension(:), allocatable, intent(inout) :: vec
       integer(kind=i1), intent(in) :: val
-      integer(kind=i1) :: res
-      integer :: idx
-      idx = 0
       do while (any(vec.eq.val))
-        res = popval(vec, val)
-        idx = idx + 1
+        call popval(vec, val)
       end do
-    end function popall_i1
+    end subroutine popall_i1
 
-    function popall_i2(vec, val) result(idx)
+    subroutine popall_i2(vec, val)
       integer(kind=i2), dimension(:), allocatable, intent(inout) :: vec
       integer(kind=i2), intent(in) :: val
-      integer(kind=i2) :: res
-      integer :: idx
-      idx = 0
       do while (any(vec.eq.val))
-        res = popval(vec, val)
-        idx = idx + 1
+        call popval(vec, val)
       end do
-    end function popall_i2
+    end subroutine popall_i2
 
-    function popall_i4(vec, val) result(idx)
+    subroutine popall_i4(vec, val)
       integer(kind=i4), dimension(:), allocatable, intent(inout) :: vec
       integer(kind=i4), intent(in) :: val
-      integer(kind=i4) :: res
-      integer :: idx
-      idx = 0
       do while (any(vec.eq.val))
-        res = popval(vec, val)
-        idx = idx + 1
+         call popval(vec, val)
       end do
-    end function popall_i4
+    end subroutine popall_i4
 
-    function popall_i8(vec, val) result(idx)
+    subroutine popall_i8(vec, val)
       integer(kind=i8), dimension(:), allocatable, intent(inout) :: vec
       integer(kind=i8), intent(in) :: val
-      integer(kind=i8) :: res
-      integer :: idx
-      idx = 0
       do while (any(vec.eq.val))
-        res = popval(vec, val)
-        idx = idx + 1
+        call popval(vec, val)
       end do
-    end function popall_i8
+    end subroutine popall_i8
 
-    function popall_r4(vec, val) result(idx)
+    subroutine popall_r4(vec, val)
       real(kind=r4), dimension(:), allocatable, intent(inout) :: vec
       real(kind=r4), intent(in) :: val
-      integer :: idx, res
-      idx = 0
       do while (any(vec.eq.val))
-        res = popval(vec, val)
-        idx = idx + 1
+        call popval(vec, val)
       end do
-    end function popall_r4
+    end subroutine popall_r4
 
-    function popall_r8(vec, val) result(idx)
+    subroutine popall_r8(vec, val)
       real(kind=r8), dimension(:), allocatable, intent(inout) :: vec
       real(kind=r8), intent(in) :: val
-      integer :: idx, res
-      idx = 0
       do while (any(vec.eq.val))
-        res = popval(vec, val)
-        idx = idx + 1
+        call popval(vec, val)
       end do
-    end function popall_r8
+    end subroutine popall_r8
 
-    function popall_r16(vec, val) result(idx)
+    subroutine popall_r16(vec, val)
       real(kind=r16), dimension(:), allocatable, intent(inout) :: vec
       real(kind=r16), intent(in) :: val
-      integer :: idx, res
-      idx = 0
       do while (any(vec.eq.val))
-        res = popval(vec, val)
-        idx = idx + 1
+        call popval(vec, val)
       end do
-    end function popall_r16
+    end subroutine popall_r16
 
-    function popall_c4(vec, val) result(idx)
+    subroutine popall_c4(vec, val)
       complex(kind=r4), dimension(:), allocatable, intent(inout) :: vec
       complex(kind=r4), intent(in) :: val
-      integer :: idx, res
-      idx = 0
       do while (any(vec.eq.val))
-        res = popval(vec, val)
-        idx = idx + 1
+        call popval(vec, val)
       end do
-    end function popall_c4
+    end subroutine popall_c4
 
-    function popall_c8(vec, val) result(idx)
+    subroutine popall_c8(vec, val)
       complex(kind=r8), dimension(:), allocatable, intent(inout) :: vec
       complex(kind=r8), intent(in) :: val
-      integer :: idx, res
-      idx = 0
       do while (any(vec.eq.val))
-        res = popval(vec, val)
-        idx = idx + 1
+        call popval(vec, val)
       end do
-    end function popall_c8
+    end subroutine popall_c8
 
-    function popall_c16(vec, val) result(idx)
+    subroutine popall_c16(vec, val)
       complex(kind=r16), dimension(:), allocatable, intent(inout) :: vec
       complex(kind=r16), intent(in) :: val
-      integer :: idx, res
-      idx = 0
       do while (any(vec.eq.val))
-        res = popval(vec, val)
-        idx = idx + 1
+        call popval(vec, val)
       end do
-    end function popall_c16
+    end subroutine popall_c16
 
-    function concat_i1(vec1, vec2) result(res)
+    subroutine popall_str(vec, val)
+      character(:), dimension(:), allocatable, intent(inout) :: vec
+      character(*), intent(in) :: val
+      do while (any(vec.eq.val))
+        call popval(vec, val)
+      end do
+    end subroutine popall_str
+
+    subroutine concat_i1(vec1, vec2)
       integer(kind=i1), dimension(:), allocatable, intent(inout) :: vec1
-      integer(kind=i1), dimension(:), intent(in) :: vec2
-      integer :: res
+      integer(kind=i1), dimension(:), allocatable, intent(in) :: vec2
       vec1 = [vec1, vec2]
-      res = size(vec1)
-    end function concat_i1
+    end subroutine concat_i1
 
-    function concat_i2(vec1, vec2) result(res)
+    subroutine concat_i2(vec1, vec2)
       integer(kind=i2), dimension(:), allocatable, intent(inout) :: vec1
-      integer(kind=i2), dimension(:), intent(in) :: vec2
-      integer :: res
+      integer(kind=i2), dimension(:), allocatable, intent(in) :: vec2
       vec1 = [vec1, vec2]
-      res = size(vec1)
-    end function concat_i2
+    end subroutine concat_i2
 
-    function concat_i4(vec1, vec2) result(res)
+    subroutine concat_i4(vec1, vec2)
       integer(kind=i4), dimension(:), allocatable, intent(inout) :: vec1
-      integer(kind=i4), dimension(:), intent(in) :: vec2
-      integer :: res
+      integer(kind=i4), dimension(:), allocatable, intent(in) :: vec2
       vec1 = [vec1, vec2]
-      res = size(vec1)
-    end function concat_i4
+    end subroutine concat_i4
 
-    function concat_i8(vec1, vec2) result(res)
+    subroutine concat_i8(vec1, vec2)
       integer(kind=i8), dimension(:), allocatable, intent(inout) :: vec1
-      integer(kind=i8), dimension(:), intent(in) :: vec2
-      integer :: res
+      integer(kind=i8), dimension(:), allocatable, intent(in) :: vec2
       vec1 = [vec1, vec2]
-      res = size(vec1)
-    end function concat_i8
+    end subroutine concat_i8
 
-    function concat_r4(vec1, vec2) result(res)
+    subroutine concat_r4(vec1, vec2)
       real(kind=r4), dimension(:), allocatable, intent(inout) :: vec1
-      real(kind=r4), dimension(:), intent(in) :: vec2
-      integer :: res
+      real(kind=r4), dimension(:), allocatable, intent(in) :: vec2
       vec1 = [vec1, vec2]
-      res = size(vec1)
-    end function concat_r4
+    end subroutine concat_r4
 
-    function concat_r8(vec1, vec2) result(res)
+    subroutine concat_r8(vec1, vec2)
       real(kind=r8), dimension(:), allocatable, intent(inout) :: vec1
-      real(kind=r8), dimension(:), intent(in) :: vec2
-      integer :: res
+      real(kind=r8), dimension(:), allocatable, intent(in) :: vec2
       vec1 = [vec1, vec2]
-      res = size(vec1)
-    end function concat_r8
+    end subroutine concat_r8
 
-    function concat_r16(vec1, vec2) result(res)
+    subroutine concat_r16(vec1, vec2)
       real(kind=r16), dimension(:), allocatable, intent(inout) :: vec1
-      real(kind=r16), dimension(:), intent(in) :: vec2
-      integer :: res
+      real(kind=r16), dimension(:), allocatable, intent(in) :: vec2
       vec1 = [vec1, vec2]
-      res = size(vec1)
-    end function concat_r16
+    end subroutine concat_r16
 
-    function concat_c4(vec1, vec2) result(res)
+    subroutine concat_c4(vec1, vec2)
       complex(kind=r4), dimension(:), allocatable, intent(inout) :: vec1
-      complex(kind=r4), dimension(:), intent(in) :: vec2
-      integer :: res
+      complex(kind=r4), dimension(:), allocatable, intent(in) :: vec2
       vec1 = [vec1, vec2]
-      res = size(vec1)
-    end function concat_c4
+    end subroutine concat_c4
 
-    function concat_c8(vec1, vec2) result(res)
+    subroutine concat_c8(vec1, vec2)
       complex(kind=r8), dimension(:), allocatable, intent(inout) :: vec1
-      complex(kind=r8), dimension(:), intent(in) :: vec2
-      integer :: res
+      complex(kind=r8), dimension(:), allocatable, intent(in) :: vec2
       vec1 = [vec1, vec2]
-      res = size(vec1)
-    end function concat_c8
+    end subroutine concat_c8
 
-    function concat_c16(vec1, vec2) result(res)
+    subroutine concat_c16(vec1, vec2)
       complex(kind=r16), dimension(:), allocatable, intent(inout) :: vec1
-      complex(kind=r16), dimension(:), intent(in) :: vec2
-      integer :: res
+      complex(kind=r16), dimension(:), allocatable, intent(in) :: vec2
       vec1 = [vec1, vec2]
-      res = size(vec1)
-    end function concat_c16
+    end subroutine concat_c16
 
-    function tally_i1(vec, val) result(res)
-      integer(kind=i1), dimension(:), allocatable, intent(in) :: vec
-      integer(kind=i1), intent(in) :: val
-      integer :: i, j, k, res
-      res = 0
-      j = lbound(vec, 1)
-      k = ubound(vec, 1)
-      do i = j, k
-        if (vec(i).eq.val) res=res+1
-      end do
-    end function tally_i1
+    subroutine concat_str(vec1, vec2)
+      character(:), dimension(:), allocatable, intent(inout) :: vec1
+      character(:), dimension(:), allocatable, intent(in) :: vec2
+      vec1 = [vec1, vec2]
+    end subroutine concat_str
 
-    function tally_i2(vec, val) result(res)
-      integer(kind=i2), dimension(:), allocatable, intent(in) :: vec
-      integer(kind=i2), intent(in) :: val
-      integer :: i, j, k, res
-      res = 0
-      j = lbound(vec, 1)
-      k = ubound(vec, 1)
-      do i = j, k
-        if (vec(i).eq.val) res=res+1
-      end do
-    end function tally_i2
-
-    function tally_i4(vec, val) result(res)
-      integer(kind=i4), dimension(:), allocatable, intent(in) :: vec
-      integer(kind=i4), intent(in) :: val
-      integer :: i, j, k, res
-      res = 0
-      j = lbound(vec, 1)
-      k = ubound(vec, 1)
-      do i = j, k
-        if (vec(i).eq.val) res=res+1
-      end do
-    end function tally_i4
-
-    function tally_i8(vec, val) result(res)
-      integer(kind=i8), dimension(:), allocatable, intent(in) :: vec
-      integer(kind=i8), intent(in) :: val
-      integer :: i, j, k, res
-      res = 0
-      j = lbound(vec, 1)
-      k = ubound(vec, 1)
-      do i = j, k
-        if (vec(i).eq.val) res=res+1
-      end do
-    end function tally_i8
-
-    function tally_r4(vec, val) result(res)
-      real(kind=r4), dimension(:), allocatable, intent(in) :: vec
-      real(kind=r4), intent(in) :: val
-      integer :: i, j, k, res
-      res = 0
-      j = lbound(vec, 1)
-      k = ubound(vec, 1)
-      do i = j, k
-        if (vec(i).eq.val) res=res+1
-      end do
-    end function tally_r4
-
-    function tally_r8(vec, val) result(res)
-      real(kind=r8), dimension(:), allocatable, intent(in) :: vec
-      real(kind=r8), intent(in) :: val
-      integer :: i, j, k, res
-      res = 0
-      j = lbound(vec, 1)
-      k = ubound(vec, 1)
-      do i = j, k
-        if (vec(i).eq.val) res=res+1
-      end do
-    end function tally_r8
-
-    function tally_r16(vec, val) result(res)
-      real(kind=r16), dimension(:), allocatable, intent(in) :: vec
-      real(kind=r16), intent(in) :: val
-      integer :: i, j, k, res
-      res = 0
-      j = lbound(vec, 1)
-      k = ubound(vec, 1)
-      do i = j, k
-        if (vec(i).eq.val) res=res+1
-      end do
-    end function tally_r16
-
-    function tally_c4(vec, val) result(res)
-      complex(kind=r4), dimension(:), allocatable, intent(in) :: vec
-      complex(kind=r4), intent(in) :: val
-      integer :: i, j, k, res
-      res = 0
-      j = lbound(vec, 1)
-      k = ubound(vec, 1)
-      do i = j, k
-        if (vec(i).eq.val) res=res+1
-      end do
-    end function tally_c4
-
-    function tally_c8(vec, val) result(res)
-      complex(kind=r8), dimension(:), allocatable, intent(in) :: vec
-      complex(kind=r8), intent(in) :: val
-      integer :: i, j, k, res
-      res = 0
-      j = lbound(vec, 1)
-      k = ubound(vec, 1)
-      do i = j, k
-        if (vec(i).eq.val) res=res+1
-      end do
-    end function tally_c8
-
-    function tally_c16(vec, val) result(res)
-      complex(kind=r16), dimension(:), allocatable, intent(in) :: vec
-      complex(kind=r16), intent(in) :: val
-      integer :: i, j, k, res
-      res = 0
-      j = lbound(vec, 1)
-      k = ubound(vec, 1)
-      do i = j, k
-        if (vec(i).eq.val) res=res+1
-      end do
-    end function tally_c16
-
-    function echo_i1(vec, val) result(res)
+    subroutine echo_i1(vec, val)
       integer(kind=i1), dimension(:), allocatable, intent(inout) :: vec
       integer(kind=i1), dimension(:), allocatable :: tmp
       integer, intent(in) :: val
-      integer :: i, res
+      integer :: i
       tmp = vec
       do i = 1, val
         vec = [vec, tmp]
       end do
-      res = size(vec)
-    end function echo_i1
+    end subroutine echo_i1
 
-    function echo_i2(vec, val) result(res)
+    subroutine echo_i2(vec, val)
       integer(kind=i2), dimension(:), allocatable, intent(inout) :: vec
       integer(kind=i2), dimension(:), allocatable :: tmp
       integer, intent(in) :: val
-      integer :: i, res
+      integer :: i
       tmp = vec
       do i = 1, val
         vec = [vec, tmp]
       end do
-      res = size(vec)
-    end function echo_i2
+    end subroutine echo_i2
 
-    function echo_i4(vec, val) result(res)
+    subroutine echo_i4(vec, val)
       integer(kind=i4), dimension(:), allocatable, intent(inout) :: vec
       integer(kind=i4), dimension(:), allocatable :: tmp
       integer, intent(in) :: val
-      integer :: i, res
+      integer :: i
       tmp = vec
       do i = 1, val
         vec = [vec, tmp]
       end do
-      res = size(vec)
-    end function echo_i4
+    end subroutine echo_i4
 
-    function echo_i8(vec, val) result(res)
+    subroutine echo_i8(vec, val)
       integer(kind=i8), dimension(:), allocatable, intent(inout) :: vec
       integer(kind=i8), dimension(:), allocatable :: tmp
       integer, intent(in) :: val
-      integer :: i, res
+      integer :: i
       tmp = vec
       do i = 1, val
         vec = [vec, tmp]
       end do
-      res = size(vec)
-    end function echo_i8
+    end subroutine echo_i8
 
-    function echo_r4(vec, val) result(res)
+    subroutine echo_r4(vec, val)
       real(kind=r4), dimension(:), allocatable, intent(inout) :: vec
       real(kind=r4), dimension(:), allocatable :: tmp
       integer, intent(in) :: val
-      integer :: i, res
+      integer :: i
       tmp = vec
       do i = 1, val
         vec = [vec, tmp]
       end do
-      res = size(vec)
-    end function echo_r4
+    end subroutine echo_r4
 
-    function echo_r8(vec, val) result(res)
+    subroutine echo_r8(vec, val)
       real(kind=r8), dimension(:), allocatable, intent(inout) :: vec
       real(kind=r8), dimension(:), allocatable :: tmp
       integer, intent(in) :: val
-      integer :: i, res
+      integer :: i
       tmp = vec
       do i = 1, val
         vec = [vec, tmp]
       end do
-      res = size(vec)
-    end function echo_r8
+    end subroutine echo_r8
 
-    function echo_r16(vec, val) result(res)
+    subroutine echo_r16(vec, val)
       real(kind=r16), dimension(:), allocatable, intent(inout) :: vec
       real(kind=r16), dimension(:), allocatable :: tmp
       integer, intent(in) :: val
-      integer :: i, res
+      integer :: i
       tmp = vec
       do i = 1, val
         vec = [vec, tmp]
       end do
-      res = size(vec)
-    end function echo_r16
+    end subroutine echo_r16
 
-    function echo_c4(vec, val) result(res)
+    subroutine echo_c4(vec, val)
       complex(kind=r4), dimension(:), allocatable, intent(inout) :: vec
       complex(kind=r4), dimension(:), allocatable :: tmp
       integer, intent(in) :: val
-      integer :: i, res
+      integer :: i
       tmp = vec
       do i = 1, val
         vec = [vec, tmp]
       end do
-      res = size(vec)
-    end function echo_c4
+    end subroutine echo_c4
 
-    function echo_c8(vec, val) result(res)
+    subroutine echo_c8(vec, val)
       complex(kind=r8), dimension(:), allocatable, intent(inout) :: vec
       complex(kind=r8), dimension(:), allocatable :: tmp
       integer, intent(in) :: val
-      integer :: i, res
+      integer :: i
       tmp = vec
       do i = 1, val
         vec = [vec, tmp]
       end do
-      res = size(vec)
-    end function echo_c8
+    end subroutine echo_c8
 
-    function echo_c16(vec, val) result(res)
+    subroutine echo_c16(vec, val)
       complex(kind=r16), dimension(:), allocatable, intent(inout) :: vec
       complex(kind=r16), dimension(:), allocatable :: tmp
       integer, intent(in) :: val
-      integer :: i, res
+      integer :: i
       tmp = vec
       do i = 1, val
         vec = [vec, tmp]
       end do
-      res = size(vec)
-    end function echo_c16
+    end subroutine echo_c16
 
-    function unique_i1(vec, sorted) result(res)
+    subroutine echo_str(vec, val)
+      character(:), dimension(:), allocatable, intent(inout) :: vec
+      character(:), dimension(:), allocatable :: tmp
+      integer, intent(in) :: val
+      integer :: i
+      tmp = vec
+      do i = 1, val
+        vec = [vec, tmp]
+      end do
+    end subroutine echo_str
+
+    subroutine unique_i1(vec, sorted)
       integer(kind=i1), dimension(:), allocatable, intent(inout) :: vec
       integer(kind=i1), dimension(:), allocatable :: tmp
       logical, intent(in) :: sorted
       integer(kind=i1) :: prev
-      integer :: res, i, j, k
-
+      integer :: i, j, k
       if (sorted) then
         j = lbound(vec, 1)
         prev = vec(j)
@@ -1180,7 +983,7 @@ module vecfun
         do i = j, k
           if (vec(i).ne.prev) then
             prev = vec(i)
-            res = push(tmp, prev)
+            call push(tmp, prev)
           end if
         end do
       else
@@ -1191,20 +994,18 @@ module vecfun
         k = ubound(vec, 1)
         do i = j, k
           prev = vec(i)
-          if (.not. any(tmp.eq.prev)) res = push(tmp, prev)
+          if (.not. any(tmp.eq.prev)) call push(tmp, prev)
         end do
       end if
       vec = tmp
-      res = size(vec)
-    end function unique_i1
+    end subroutine unique_i1
 
-    function unique_i2(vec, sorted) result(res)
+    subroutine unique_i2(vec, sorted)
       integer(kind=i2), dimension(:), allocatable, intent(inout) :: vec
       integer(kind=i2), dimension(:), allocatable :: tmp
       logical, intent(in) :: sorted
       integer(kind=i2) :: prev
-      integer :: res, i, j, k
-
+      integer :: i, j, k
       if (sorted) then
         j = lbound(vec, 1)
         prev = vec(j)
@@ -1214,7 +1015,7 @@ module vecfun
         do i = j, k
           if (vec(i).ne.prev) then
             prev = vec(i)
-            res = push(tmp, prev)
+            call push(tmp, prev)
           end if
         end do
       else
@@ -1225,20 +1026,18 @@ module vecfun
         k = ubound(vec, 1)
         do i = j, k
           prev = vec(i)
-          if (.not. any(tmp.eq.prev)) res = push(tmp, prev)
+          if (.not. any(tmp.eq.prev)) call push(tmp, prev)
         end do
       end if
       vec = tmp
-      res = size(vec)
-    end function unique_i2
+    end subroutine unique_i2
 
-    function unique_i4(vec, sorted) result(res)
+    subroutine unique_i4(vec, sorted)
       integer(kind=i4), dimension(:), allocatable, intent(inout) :: vec
       integer(kind=i4), dimension(:), allocatable :: tmp
       logical, intent(in) :: sorted
       integer(kind=i4) :: prev
-      integer :: res, i, j, k
-
+      integer :: i, j, k
       if (sorted) then
         j = lbound(vec, 1)
         prev = vec(j)
@@ -1248,7 +1047,7 @@ module vecfun
         do i = j, k
           if (vec(i).ne.prev) then
             prev = vec(i)
-            res = push(tmp, prev)
+            call push(tmp, prev)
           end if
         end do
       else
@@ -1259,20 +1058,18 @@ module vecfun
         k = ubound(vec, 1)
         do i = j, k
           prev = vec(i)
-          if (.not. any(tmp.eq.prev)) res = push(tmp, prev)
+          if (.not. any(tmp.eq.prev)) call push(tmp, prev)
         end do
       end if
       vec = tmp
-      res = size(vec)
-    end function unique_i4
+    end subroutine unique_i4
 
-    function unique_i8(vec, sorted) result(res)
+    subroutine unique_i8(vec, sorted)
       integer(kind=i8), dimension(:), allocatable, intent(inout) :: vec
       integer(kind=i8), dimension(:), allocatable :: tmp
       logical, intent(in) :: sorted
       integer(kind=i8) :: prev
-      integer :: res, i, j, k
-
+      integer :: i, j, k
       if (sorted) then
         j = lbound(vec, 1)
         prev = vec(j)
@@ -1282,7 +1079,7 @@ module vecfun
         do i = j, k
           if (vec(i).ne.prev) then
             prev = vec(i)
-            res = push(tmp, prev)
+            call push(tmp, prev)
           end if
         end do
       else
@@ -1293,20 +1090,18 @@ module vecfun
         k = ubound(vec, 1)
         do i = j, k
           prev = vec(i)
-          if (.not. any(tmp.eq.prev)) res = push(tmp, prev)
+          if (.not. any(tmp.eq.prev)) call push(tmp, prev)
         end do
       end if
       vec = tmp
-      res = size(vec)
-    end function unique_i8
+    end subroutine unique_i8
 
-    function unique_r4(vec, sorted) result(res)
+    subroutine unique_r4(vec, sorted)
       real(kind=r4), dimension(:), allocatable, intent(inout) :: vec
       real(kind=r4), dimension(:), allocatable :: tmp
       logical, intent(in) :: sorted
       real(kind=r4) :: prev
-      integer :: res, i, j, k
-
+      integer :: i, j, k
       if (sorted) then
         j = lbound(vec, 1)
         prev = vec(j)
@@ -1316,7 +1111,7 @@ module vecfun
         do i = j, k
           if (vec(i).ne.prev) then
             prev = vec(i)
-            res = push(tmp, prev)
+            call push(tmp, prev)
           end if
         end do
       else
@@ -1327,20 +1122,18 @@ module vecfun
         k = ubound(vec, 1)
         do i = j, k
           prev = vec(i)
-          if (.not. any(tmp.eq.prev)) res = push(tmp, prev)
+          if (.not. any(tmp.eq.prev)) call push(tmp, prev)
         end do
       end if
       vec = tmp
-      res = size(vec)
-    end function unique_r4
+    end subroutine unique_r4
 
-    function unique_r8(vec, sorted) result(res)
+    subroutine unique_r8(vec, sorted)
       real(kind=r8), dimension(:), allocatable, intent(inout) :: vec
       real(kind=r8), dimension(:), allocatable :: tmp
       logical, intent(in) :: sorted
       real(kind=r8) :: prev
-      integer :: res, i, j, k
-
+      integer :: i, j, k
       if (sorted) then
         j = lbound(vec, 1)
         prev = vec(j)
@@ -1350,7 +1143,7 @@ module vecfun
         do i = j, k
           if (vec(i).ne.prev) then
             prev = vec(i)
-            res = push(tmp, prev)
+            call push(tmp, prev)
           end if
         end do
       else
@@ -1361,20 +1154,18 @@ module vecfun
         k = ubound(vec, 1)
         do i = j, k
           prev = vec(i)
-          if (.not. any(tmp.eq.prev)) res = push(tmp, prev)
+          if (.not. any(tmp.eq.prev)) call push(tmp, prev)
         end do
       end if
       vec = tmp
-      res = size(vec)
-    end function unique_r8
+    end subroutine unique_r8
 
-    function unique_r16(vec, sorted) result(res)
+    subroutine unique_r16(vec, sorted)
       real(kind=r16), dimension(:), allocatable, intent(inout) :: vec
       real(kind=r16), dimension(:), allocatable :: tmp
       logical, intent(in) :: sorted
       real(kind=r16) :: prev
-      integer :: res, i, j, k
-
+      integer :: i, j, k
       if (sorted) then
         j = lbound(vec, 1)
         prev = vec(j)
@@ -1384,7 +1175,7 @@ module vecfun
         do i = j, k
           if (vec(i).ne.prev) then
             prev = vec(i)
-            res = push(tmp, prev)
+            call push(tmp, prev)
           end if
         end do
       else
@@ -1395,20 +1186,18 @@ module vecfun
         k = ubound(vec, 1)
         do i = j, k
           prev = vec(i)
-          if (.not. any(tmp.eq.prev)) res = push(tmp, prev)
+          if (.not. any(tmp.eq.prev)) call push(tmp, prev)
         end do
       end if
       vec = tmp
-      res = size(vec)
-    end function unique_r16
+    end subroutine unique_r16
 
-    function unique_c4(vec, sorted) result(res)
+    subroutine unique_c4(vec, sorted)
       complex(kind=r4), dimension(:), allocatable, intent(inout) :: vec
       complex(kind=r4), dimension(:), allocatable :: tmp
       logical, intent(in) :: sorted
       complex(kind=r4) :: prev
-      integer :: res, i, j, k
-
+      integer :: i, j, k
       if (sorted) then
         j = lbound(vec, 1)
         prev = vec(j)
@@ -1418,7 +1207,7 @@ module vecfun
         do i = j, k
           if (vec(i).ne.prev) then
             prev = vec(i)
-            res = push(tmp, prev)
+            call push(tmp, prev)
           end if
         end do
       else
@@ -1429,20 +1218,18 @@ module vecfun
         k = ubound(vec, 1)
         do i = j, k
           prev = vec(i)
-          if (.not. any(tmp.eq.prev)) res = push(tmp, prev)
+          if (.not. any(tmp.eq.prev)) call push(tmp, prev)
         end do
       end if
       vec = tmp
-      res = size(vec)
-    end function unique_c4
+    end subroutine unique_c4
 
-    function unique_c8(vec, sorted) result(res)
+    subroutine unique_c8(vec, sorted)
       complex(kind=r8), dimension(:), allocatable, intent(inout) :: vec
       complex(kind=r8), dimension(:), allocatable :: tmp
       logical, intent(in) :: sorted
       complex(kind=r8) :: prev
-      integer :: res, i, j, k
-
+      integer :: i, j, k
       if (sorted) then
         j = lbound(vec, 1)
         prev = vec(j)
@@ -1452,7 +1239,7 @@ module vecfun
         do i = j, k
           if (vec(i).ne.prev) then
             prev = vec(i)
-            res = push(tmp, prev)
+            call push(tmp, prev)
           end if
         end do
       else
@@ -1463,20 +1250,18 @@ module vecfun
         k = ubound(vec, 1)
         do i = j, k
           prev = vec(i)
-          if (.not. any(tmp.eq.prev)) res = push(tmp, prev)
+          if (.not. any(tmp.eq.prev)) call push(tmp, prev)
         end do
       end if
       vec = tmp
-      res = size(vec)
-    end function unique_c8
+    end subroutine unique_c8
 
-    function unique_c16(vec, sorted) result(res)
+    subroutine unique_c16(vec, sorted)
       complex(kind=r16), dimension(:), allocatable, intent(inout) :: vec
       complex(kind=r16), dimension(:), allocatable :: tmp
       logical, intent(in) :: sorted
       complex(kind=r16) :: prev
-      integer :: res, i, j, k
-
+      integer :: i, j, k
       if (sorted) then
         j = lbound(vec, 1)
         prev = vec(j)
@@ -1486,7 +1271,7 @@ module vecfun
         do i = j, k
           if (vec(i).ne.prev) then
             prev = vec(i)
-            res = push(tmp, prev)
+            call push(tmp, prev)
           end if
         end do
       else
@@ -1497,17 +1282,48 @@ module vecfun
         k = ubound(vec, 1)
         do i = j, k
           prev = vec(i)
-          if (.not. any(tmp.eq.prev)) res = push(tmp, prev)
+          if (.not. any(tmp.eq.prev)) call push(tmp, prev)
         end do
       end if
       vec = tmp
-      res = size(vec)
-    end function unique_c16
+    end subroutine unique_c16
 
-    function reverse_i1(vec) result(res)
+    subroutine unique_str(vec, sorted)
+      character(:), dimension(:), allocatable, intent(inout) :: vec
+      character(:), dimension(:), allocatable :: tmp
+      logical, intent(in) :: sorted
+      character(:), allocatable :: prev
+      integer :: i, j, k
+      if (sorted) then
+        j = lbound(vec, 1)
+        prev = vec(j)
+        tmp = [prev]
+        j = lbound(vec, 1) + 1
+        k = ubound(vec, 1)
+        do i = j, k
+          if (vec(i).ne.prev) then
+            prev = vec(i)
+            call push(tmp, prev)
+          end if
+        end do
+      else
+        j = lbound(vec, 1)
+        prev = vec(j)
+        tmp = [prev]
+        j = j + 1
+        k = ubound(vec, 1)
+        do i = j, k
+          prev = vec(i)
+          if (.not. any(tmp.eq.prev)) call push(tmp, prev)
+        end do
+      end if
+      vec = tmp
+    end subroutine unique_str
+
+    subroutine reverse_i1(vec)
       integer(kind=i1), dimension(:), allocatable, intent(inout) :: vec
       integer(kind=i1) :: tmp
-      integer :: j, k, res
+      integer :: j, k
       j = lbound(vec, 1)
       k = ubound(vec, 1)
       do while (j.le.k)
@@ -1517,13 +1333,12 @@ module vecfun
         j = j + 1
         k = k - 1
       end do
-      res = size(vec)
-    end function reverse_i1
+    end subroutine reverse_i1
 
-    function reverse_i2(vec) result(res)
+    subroutine reverse_i2(vec)
       integer(kind=i2), dimension(:), allocatable, intent(inout) :: vec
       integer(kind=i2) :: tmp
-      integer :: j, k, res
+      integer :: j, k
       j = lbound(vec, 1)
       k = ubound(vec, 1)
       do while (j.le.k)
@@ -1533,13 +1348,12 @@ module vecfun
         j = j + 1
         k = k - 1
       end do
-      res = size(vec)
-    end function reverse_i2
+    end subroutine reverse_i2
 
-    function reverse_i4(vec) result(res)
+    subroutine reverse_i4(vec)
       integer(kind=i4), dimension(:), allocatable, intent(inout) :: vec
       integer(kind=i4) :: tmp
-      integer :: j, k, res
+      integer :: j, k
       j = lbound(vec, 1)
       k = ubound(vec, 1)
       do while (j.le.k)
@@ -1549,13 +1363,12 @@ module vecfun
         j = j + 1
         k = k - 1
       end do
-      res = size(vec)
-    end function reverse_i4
+    end subroutine reverse_i4
 
-    function reverse_i8(vec) result(res)
+    subroutine reverse_i8(vec)
       integer(kind=i8), dimension(:), allocatable, intent(inout) :: vec
       integer(kind=i8) :: tmp
-      integer :: j, k, res
+      integer :: j, k
       j = lbound(vec, 1)
       k = ubound(vec, 1)
       do while (j.le.k)
@@ -1565,13 +1378,12 @@ module vecfun
         j = j + 1
         k = k - 1
       end do
-      res = size(vec)
-    end function reverse_i8
+    end subroutine reverse_i8
 
-    function reverse_r4(vec) result(res)
+    subroutine reverse_r4(vec)
       real(kind=r4), dimension(:), allocatable, intent(inout) :: vec
       real(kind=r4) :: tmp
-      integer :: j, k, res
+      integer :: j, k
       j = lbound(vec, 1)
       k = ubound(vec, 1)
       do while (j.le.k)
@@ -1581,13 +1393,12 @@ module vecfun
         j = j + 1
         k = k - 1
       end do
-      res = size(vec)
-    end function reverse_r4
+    end subroutine reverse_r4
 
-    function reverse_r8(vec) result(res)
+    subroutine reverse_r8(vec)
       real(kind=r8), dimension(:), allocatable, intent(inout) :: vec
       real(kind=r8) :: tmp
-      integer :: j, k, res
+      integer :: j, k
       j = lbound(vec, 1)
       k = ubound(vec, 1)
       do while (j.le.k)
@@ -1597,13 +1408,12 @@ module vecfun
         j = j + 1
         k = k - 1
       end do
-      res = size(vec)
-    end function reverse_r8
+    end subroutine reverse_r8
 
-    function reverse_r16(vec) result(res)
+    subroutine reverse_r16(vec)
       real(kind=r16), dimension(:), allocatable, intent(inout) :: vec
       real(kind=r16) :: tmp
-      integer :: j, k, res
+      integer :: j, k
       j = lbound(vec, 1)
       k = ubound(vec, 1)
       do while (j.le.k)
@@ -1613,13 +1423,12 @@ module vecfun
         j = j + 1
         k = k - 1
       end do
-      res = size(vec)
-    end function reverse_r16
+    end subroutine reverse_r16
 
-    function reverse_c4(vec) result(res)
+    subroutine reverse_c4(vec)
       complex(kind=r4), dimension(:), allocatable, intent(inout) :: vec
       complex(kind=r4) :: tmp
-      integer :: j, k, res
+      integer :: j, k
       j = lbound(vec, 1)
       k = ubound(vec, 1)
       do while (j.le.k)
@@ -1629,13 +1438,12 @@ module vecfun
         j = j + 1
         k = k - 1
       end do
-      res = size(vec)
-    end function reverse_c4
+    end subroutine reverse_c4
 
-    function reverse_c8(vec) result(res)
+    subroutine reverse_c8(vec)
       complex(kind=r8), dimension(:), allocatable, intent(inout) :: vec
       complex(kind=r8) :: tmp
-      integer :: j, k, res
+      integer :: j, k
       j = lbound(vec, 1)
       k = ubound(vec, 1)
       do while (j.le.k)
@@ -1645,13 +1453,12 @@ module vecfun
         j = j + 1
         k = k - 1
       end do
-      res = size(vec)
-    end function reverse_c8
+    end subroutine reverse_c8
 
-    function reverse_c16(vec) result(res)
+    subroutine reverse_c16(vec)
       complex(kind=r16), dimension(:), allocatable, intent(inout) :: vec
       complex(kind=r16) :: tmp
-      integer :: j, k, res
+      integer :: j, k
       j = lbound(vec, 1)
       k = ubound(vec, 1)
       do while (j.le.k)
@@ -1661,158 +1468,308 @@ module vecfun
         j = j + 1
         k = k - 1
       end do
-      res = size(vec)
-    end function reverse_c16
+    end subroutine reverse_c16
 
-    function every_i1(vec, val) result(res)
+    subroutine reverse_str(vec)
+      character(:), dimension(:), allocatable, intent(inout) :: vec
+      character(:), allocatable :: tmp
+      integer :: j, k
+      j = lbound(vec, 1)
+      k = ubound(vec, 1)
+      do while (j.le.k)
+        tmp = vec(j)
+        vec(j) = vec(k)
+        vec(k) = tmp
+        j = j + 1
+        k = k - 1
+      end do
+    end subroutine reverse_str
+
+    subroutine every_i1(vec, val)
       integer(kind=i1), dimension(:), allocatable, intent(inout) :: vec
       integer, intent(in) :: val
       integer(kind=i1), allocatable :: tmp(:)
-      integer :: i, j, k, res
+      integer :: i, j, k
       j = val
       k = ubound(vec, 1)
       tmp = [vec(j)]
       do i = j+val, k, val
-        res = push(tmp, vec(i))
+        call push(tmp, vec(i))
       end do
       vec = tmp
-      res = size(vec)
-     end function every_i1
+     end subroutine every_i1
 
-    function every_i2(vec, val) result(res)
+    subroutine every_i2(vec, val)
       integer(kind=i2), dimension(:), allocatable, intent(inout) :: vec
       integer, intent(in) :: val
       integer(kind=i2), allocatable :: tmp(:)
-      integer :: i, j, k, res
+      integer :: i, j, k
       j = val
       k = ubound(vec, 1)
       tmp = [vec(j)]
       do i = j+val, k, val
-        res = push(tmp, vec(i))
+        call push(tmp, vec(i))
       end do
       vec = tmp
-      res = size(vec)
-     end function every_i2
+     end subroutine every_i2
 
-    function every_i4(vec, val) result(res)
+    subroutine every_i4(vec, val)
       integer(kind=i4), dimension(:), allocatable, intent(inout) :: vec
       integer, intent(in) :: val
       integer(kind=i4), allocatable :: tmp(:)
-      integer :: i, j, k, res
+      integer :: i, j, k
       j = val
       k = ubound(vec, 1)
       tmp = [vec(j)]
       do i = j+val, k, val
-        res = push(tmp, vec(i))
+        call push(tmp, vec(i))
       end do
       vec = tmp
-      res = size(vec)
-     end function every_i4
+     end subroutine every_i4
 
-    function every_i8(vec, val) result(res)
+    subroutine every_i8(vec, val)
       integer(kind=i8), dimension(:), allocatable, intent(inout) :: vec
       integer, intent(in) :: val
       integer(kind=i8), allocatable :: tmp(:)
-      integer :: i, j, k, res
+      integer :: i, j, k
       j = val
       k = ubound(vec, 1)
       tmp = [vec(j)]
       do i = j+val, k, val
-        res = push(tmp, vec(i))
+        call push(tmp, vec(i))
       end do
       vec = tmp
-      res = size(vec)
-     end function every_i8
+     end subroutine every_i8
 
-    function every_r4(vec, val) result(res)
+    subroutine every_r4(vec, val)
       real(kind=r4), dimension(:), allocatable, intent(inout) :: vec
       integer, intent(in) :: val
       real(kind=r4), allocatable :: tmp(:)
-      integer :: i, j, k, res
+      integer :: i, j, k
       j = val
       k = ubound(vec, 1)
       tmp = [vec(j)]
       do i = j+val, k, val
-        res = push(tmp, vec(i))
+        call push(tmp, vec(i))
       end do
       vec = tmp
-      res = size(vec)
-     end function every_r4
+     end subroutine every_r4
 
-    function every_r8(vec, val) result(res)
+    subroutine every_r8(vec, val)
       real(kind=r8), dimension(:), allocatable, intent(inout) :: vec
       integer, intent(in) :: val
       real(kind=r8), allocatable :: tmp(:)
-      integer :: i, j, k, res
+      integer :: i, j, k
       j = val
       k = ubound(vec, 1)
       tmp = [vec(j)]
       do i = j+val, k, val
-        res = push(tmp, vec(i))
+        call push(tmp, vec(i))
       end do
       vec = tmp
-      res = size(vec)
-     end function every_r8
+     end subroutine every_r8
 
-    function every_r16(vec, val) result(res)
+    subroutine every_r16(vec, val)
       real(kind=r16), dimension(:), allocatable, intent(inout) :: vec
       integer, intent(in) :: val
       real(kind=r16), allocatable :: tmp(:)
-      integer :: i, j, k, res
+      integer :: i, j, k
       j = val
       k = ubound(vec, 1)
       tmp = [vec(j)]
       do i = j+val, k, val
-        res = push(tmp, vec(i))
+        call push(tmp, vec(i))
       end do
       vec = tmp
-      res = size(vec)
-     end function every_r16
+     end subroutine every_r16
 
-    function every_c4(vec, val) result(res)
+    subroutine every_c4(vec, val)
       complex(kind=r4), dimension(:), allocatable, intent(inout) :: vec
       integer, intent(in) :: val
       complex(kind=r4), allocatable :: tmp(:)
-      integer :: i, j, k, res
+      integer :: i, j, k
       j = val
       k = ubound(vec, 1)
       tmp = [vec(j)]
       do i = j+val, k, val
-        res = push(tmp, vec(i))
+        call push(tmp, vec(i))
       end do
       vec = tmp
-      res = size(vec)
-     end function every_c4
+     end subroutine every_c4
 
-    function every_c8(vec, val) result(res)
+    subroutine every_c8(vec, val)
       complex(kind=r8), dimension(:), allocatable, intent(inout) :: vec
       integer, intent(in) :: val
       complex(kind=r8), allocatable :: tmp(:)
-      integer :: i, j, k, res
+      integer :: i, j, k
       j = val
       k = ubound(vec, 1)
       tmp = [vec(j)]
       do i = j+val, k, val
-        res = push(tmp, vec(i))
+        call push(tmp, vec(i))
       end do
       vec = tmp
-      res = size(vec)
-     end function every_c8
+     end subroutine every_c8
 
-    function every_c16(vec, val) result(res)
+    subroutine every_c16(vec, val)
       complex(kind=r16), dimension(:), allocatable, intent(inout) :: vec
       integer, intent(in) :: val
       complex(kind=r16), allocatable :: tmp(:)
-      integer :: i, j, k, res
+      integer :: i, j, k
       j = val
       k = ubound(vec, 1)
       tmp = [vec(j)]
       do i = j+val, k, val
-        res = push(tmp, vec(i))
+        call push(tmp, vec(i))
       end do
       vec = tmp
-      res = size(vec)
-     end function every_c16
+    end subroutine every_c16
+
+    subroutine every_str(vec, val)
+      character(:), dimension(:), allocatable, intent(inout) :: vec
+      integer, intent(in) :: val
+      character(:), allocatable :: tmp(:)
+      integer :: i, j, k
+      j = val
+      k = ubound(vec, 1)
+      tmp = [vec(j)]
+      do i = j+val, k, val
+        call push(tmp, vec(i))
+      end do
+      vec = tmp
+    end subroutine every_str
+
+    subroutine zip_i1(vec1, vec2)
+      integer(kind=i1), dimension(:), allocatable, intent(inout) :: vec1
+      integer(kind=i1), dimension(:), allocatable, intent(in) :: vec2
+      integer :: i, j, k
+      j = lbound(vec2, 1)
+      k = ubound(vec2, 1)
+      do i = j, k
+        call pushto(vec1, vec2(i), 2*i)
+      end do
+    end subroutine zip_i1
+
+    subroutine zip_i2(vec1, vec2)
+      integer(kind=i2), dimension(:), allocatable, intent(inout) :: vec1
+      integer(kind=i2), dimension(:), allocatable, intent(in) :: vec2
+      integer :: i, j, k
+      j = lbound(vec2, 1)
+      k = ubound(vec2, 1)
+      do i = j, k
+        call pushto(vec1, vec2(i), 2*i)
+      end do
+    end subroutine zip_i2
+
+    subroutine zip_i4(vec1, vec2)
+      integer(kind=i4), dimension(:), allocatable, intent(inout) :: vec1
+      integer(kind=i4), dimension(:), allocatable, intent(in) :: vec2
+      integer :: i, j, k
+      j = lbound(vec2, 1)
+      k = ubound(vec2, 1)
+      do i = j, k
+        call pushto(vec1, vec2(i), 2*i)
+      end do
+    end subroutine zip_i4
+
+    subroutine zip_i8(vec1, vec2)
+      integer(kind=i8), dimension(:), allocatable, intent(inout) :: vec1
+      integer(kind=i8), dimension(:), allocatable, intent(in) :: vec2
+      integer :: i, j, k
+      j = lbound(vec2, 1)
+      k = ubound(vec2, 1)
+      do i = j, k
+        call pushto(vec1, vec2(i), 2*i)
+      end do
+    end subroutine zip_i8
+
+    subroutine zip_r4(vec1, vec2)
+      real(kind=r4), dimension(:), allocatable, intent(inout) :: vec1
+      real(kind=r4), dimension(:), allocatable, intent(in) :: vec2
+      integer :: i, j, k
+      j = lbound(vec2, 1)
+      k = ubound(vec2, 1)
+      do i = j, k
+        call pushto(vec1, vec2(i), 2*i)
+      end do
+    end subroutine zip_r4
+
+    subroutine zip_r8(vec1, vec2)
+      real(kind=r8), dimension(:), allocatable, intent(inout) :: vec1
+      real(kind=r8), dimension(:), allocatable, intent(in) :: vec2
+      integer :: i, j, k
+      j = lbound(vec2, 1)
+      k = ubound(vec2, 1)
+      do i = j, k
+        call pushto(vec1, vec2(i), 2*i)
+      end do
+    end subroutine zip_r8
+
+    subroutine zip_r16(vec1, vec2)
+      real(kind=r16), dimension(:), allocatable, intent(inout) :: vec1
+      real(kind=r16), dimension(:), allocatable, intent(in) :: vec2
+      integer :: i, j, k
+      j = lbound(vec2, 1)
+      k = ubound(vec2, 1)
+      do i = j, k
+        call pushto(vec1, vec2(i), 2*i)
+      end do
+    end subroutine zip_r16
+
+    subroutine zip_c4(vec1, vec2)
+      complex(kind=r4), dimension(:), allocatable, intent(inout) :: vec1
+      complex(kind=r4), dimension(:), allocatable, intent(in) :: vec2
+      integer :: i, j, k
+      j = lbound(vec2, 1)
+      k = ubound(vec2, 1)
+      do i = j, k
+        call pushto(vec1, vec2(i), 2*i)
+      end do
+    end subroutine zip_c4
+
+    subroutine zip_c8(vec1, vec2)
+      complex(kind=r8), dimension(:), allocatable, intent(inout) :: vec1
+      complex(kind=r8), dimension(:), allocatable, intent(in) :: vec2
+      integer :: i, j, k
+      j = lbound(vec2, 1)
+      k = ubound(vec2, 1)
+      do i = j, k
+        call pushto(vec1, vec2(i), 2*i)
+      end do
+    end subroutine zip_c8
+
+    subroutine zip_c16(vec1, vec2)
+      complex(kind=r16), dimension(:), allocatable, intent(inout) :: vec1
+      complex(kind=r16), dimension(:), allocatable, intent(in) :: vec2
+      integer :: i, j, k
+      j = lbound(vec2, 1)
+      k = ubound(vec2, 1)
+      do i = j, k
+        call pushto(vec1, vec2(i), 2*i)
+      end do
+    end subroutine zip_c16
+
+    subroutine zip_str(vec1, vec2)
+      character(:), dimension(:), allocatable, intent(inout) :: vec1
+      character(:), dimension(:), allocatable, intent(in) :: vec2
+      integer :: i, j, k
+      j = lbound(vec2, 1)
+      k = ubound(vec2, 1)
+      do i = j, k
+        call pushto(vec1, vec2(i), 2*i)
+      end do
+    end subroutine zip_str
+
+    subroutine popevery_i1(vec, val)
+      integer(kind=i1), dimension(:), allocatable, intent(inout) :: vec
+      integer, intent(in) :: val
+      integer :: i, j, k
+      j = lbound(vec, 1)
+      k = (ubound(vec, 1) - j)/val
+      do i = j, k, val
+        call pop(vec, i-j+val)
+      end do
+    end subroutine popevery_i1
 
 end module vecfun
 
