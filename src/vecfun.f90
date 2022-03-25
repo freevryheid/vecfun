@@ -21,7 +21,7 @@ module vecfun
   public :: reverse
   public :: every
   public :: zip
-  ! public :: popevery
+  public :: popevery
 
   interface push
     !! adds val pushed to the end of the input vector
@@ -197,19 +197,19 @@ module vecfun
     module procedure zip_str
   end interface zip
 
-  ! interface popevery
-  !   module procedure popevery_i1
-  !   module procedure popevery_i2
-  !   module procedure popevery_i4
-  !   module procedure popevery_i8
-  !   module procedure popevery_r4
-  !   module procedure popevery_r8
-  !   module procedure popevery_r16
-  !   module procedure popevery_c4
-  !   module procedure popevery_c8
-  !   module procedure popevery_c16
-  !   module procedure popevery_str
-  ! end interface popevery
+  interface popevery
+    module procedure popevery_i1
+    module procedure popevery_i2
+    module procedure popevery_i4
+    module procedure popevery_i8
+    module procedure popevery_r4
+    module procedure popevery_r8
+    module procedure popevery_r16
+    module procedure popevery_c4
+    module procedure popevery_c8
+    module procedure popevery_c16
+    module procedure popevery_str
+  end interface popevery
 
   contains
 
@@ -807,158 +807,95 @@ module vecfun
       res = [vec(:idx-1), vec(idx:)]
     end function popval_str
 
+    ! pure function popall_i1(vec, val) result(res)
+    !   integer(kind=i1), dimension(:), allocatable, intent(in) :: vec
+    !   integer(kind=i1), dimension(:), allocatable :: res
+    !   integer(kind=i1), intent(in) :: val
+    !   logical, dimension(:), allocatable :: mask
+    !   integer :: i, n
+    !   mask = vec.eq.val
+    !   n = count(mask)
+    !   res = vec
+    !   do  i = 1, n
+    !     res = popval(res, val)
+    !   end do
+    ! end function popall_i1
+
     pure function popall_i1(vec, val) result(res)
       integer(kind=i1), dimension(:), allocatable, intent(in) :: vec
       integer(kind=i1), dimension(:), allocatable :: res
       integer(kind=i1), intent(in) :: val
-      logical, dimension(:), allocatable :: mask
-      integer :: i, n
-      mask = vec.eq.val
-      n = count(mask)
-      res = vec
-      do  i = 1, n
-        res = popval(res, val)
-      end do
+      res = pack(vec, vec /= val)
     end function popall_i1
 
     pure function popall_i2(vec, val) result(res)
       integer(kind=i2), dimension(:), allocatable, intent(in) :: vec
       integer(kind=i2), dimension(:), allocatable :: res
       integer(kind=i2), intent(in) :: val
-      logical, dimension(:), allocatable :: mask
-      integer :: i, n
-      mask = vec.eq.val
-      n = count(mask)
-      res = vec
-      do  i = 1, n
-        res = popval(res, val)
-      end do
+      res = pack(vec, vec /= val)
     end function popall_i2
 
     pure function popall_i4(vec, val) result(res)
       integer(kind=i4), dimension(:), allocatable, intent(in) :: vec
       integer(kind=i4), dimension(:), allocatable :: res
       integer(kind=i4), intent(in) :: val
-      logical, dimension(:), allocatable :: mask
-      integer :: i, n
-      mask = vec.eq.val
-      n = count(mask)
-      res = vec
-      do  i = 1, n
-        res = popval(res, val)
-      end do
+      res = pack(vec, vec /= val)
     end function popall_i4
 
     pure function popall_i8(vec, val) result(res)
       integer(kind=i8), dimension(:), allocatable, intent(in) :: vec
       integer(kind=i8), dimension(:), allocatable :: res
       integer(kind=i8), intent(in) :: val
-      logical, dimension(:), allocatable :: mask
-      integer :: i, n
-      mask = vec.eq.val
-      n = count(mask)
-      res = vec
-      do  i = 1, n
-        res = popval(res, val)
-      end do
+      res = pack(vec, vec /= val)
     end function popall_i8
 
     pure function popall_r4(vec, val) result(res)
       real(kind=r4), dimension(:), allocatable, intent(in) :: vec
       real(kind=r4), dimension(:), allocatable :: res
       real(kind=r4), intent(in) :: val
-      logical, dimension(:), allocatable :: mask
-      integer :: i, n
-      mask = vec.eq.val
-      n = count(mask)
-      res = vec
-      do  i = 1, n
-        res = popval(res, val)
-      end do
+      res = pack(vec, vec /= val)
     end function popall_r4
 
     pure function popall_r8(vec, val) result(res)
       real(kind=r8), dimension(:), allocatable, intent(in) :: vec
       real(kind=r8), dimension(:), allocatable :: res
       real(kind=r8), intent(in) :: val
-      logical, dimension(:), allocatable :: mask
-      integer :: i, n
-      mask = vec.eq.val
-      n = count(mask)
-      res = vec
-      do  i = 1, n
-        res = popval(res, val)
-      end do
+      res = pack(vec, vec /= val)
     end function popall_r8
 
     pure function popall_r16(vec, val) result(res)
       real(kind=r16), dimension(:), allocatable, intent(in) :: vec
       real(kind=r16), dimension(:), allocatable :: res
       real(kind=r16), intent(in) :: val
-      logical, dimension(:), allocatable :: mask
-      integer :: i, n
-      mask = vec.eq.val
-      n = count(mask)
-      res = vec
-      do  i = 1, n
-        res = popval(res, val)
-      end do
+      res = pack(vec, vec /= val)
     end function popall_r16
 
     pure function popall_c4(vec, val) result(res)
       complex(kind=r4), dimension(:), allocatable, intent(in) :: vec
       complex(kind=r4), dimension(:), allocatable :: res
       complex(kind=r4), intent(in) :: val
-      logical, dimension(:), allocatable :: mask
-      integer :: i, n
-      mask = vec.eq.val
-      n = count(mask)
-      res = vec
-      do  i = 1, n
-        res = popval(res, val)
-      end do
+      res = pack(vec, vec /= val)
     end function popall_c4
 
     pure function popall_c8(vec, val) result(res)
       complex(kind=r8), dimension(:), allocatable, intent(in) :: vec
       complex(kind=r8), dimension(:), allocatable :: res
       complex(kind=r8), intent(in) :: val
-      logical, dimension(:), allocatable :: mask
-      integer :: i, n
-      mask = vec.eq.val
-      n = count(mask)
-      res = vec
-      do  i = 1, n
-        res = popval(res, val)
-      end do
+      res = pack(vec, vec /= val)
     end function popall_c8
 
     pure function popall_c16(vec, val) result(res)
       complex(kind=r16), dimension(:), allocatable, intent(in) :: vec
       complex(kind=r16), dimension(:), allocatable :: res
       complex(kind=r16), intent(in) :: val
-      logical, dimension(:), allocatable :: mask
-      integer :: i, n
-      mask = vec.eq.val
-      n = count(mask)
-      res = vec
-      do  i = 1, n
-        res = popval(res, val)
-      end do
+      res = pack(vec, vec /= val)
     end function popall_c16
 
     pure function popall_str(vec, val) result(res)
       character(:), dimension(:), allocatable, intent(in) :: vec
       character(:), dimension(:), allocatable :: res
       character(*), intent(in) :: val
-      logical, dimension(:), allocatable :: mask
-      integer :: i, n
-      mask = vec.eq.val
-      n = count(mask)
-      res = vec
-      do  i = 1, n
-        res = popval(res, val)
-      end do
+      res = pack(vec, vec /= val)
     end function popall_str
 
     pure function concat_i1(vec1, vec2) result(res)
@@ -1874,53 +1811,170 @@ module vecfun
       end do
     end function zip_str
 
-    ! function popevery_i1(vec, val) result(res)
-    !   integer(kind=i1), dimension(:), allocatable, intent(in) :: vec
-    !   integer(kind=i1), dimension(:), allocatable :: res
-    !   integer, intent(in) :: val
-    !   integer :: i, j, k
-    !   j = lbound(vec, 1)
-    !   k = (ubound(vec, 1) - j)/val
-    !   do i = j, k, val
-    !     call pop(vec, i-j+val)
-    !   end do
-    ! end function popevery_i1
+    function popevery_i1(vec, val) result(res)
+      integer(kind=i1), dimension(:), allocatable, intent(in) :: vec
+      integer(kind=i1), dimension(:), allocatable :: res
+      integer, intent(in) :: val
+      integer :: i, j, k
+      logical, dimension(:), allocatable :: mask
+      j = lbound(vec, 1)
+      k = ubound(vec, 1)
+      allocate(mask(size(vec)))
+      mask = .false.
+      mask(j:k:val) = .true.
+      res = pack(vec, mask)
+      deallocate(mask)
+    end function popevery_i1
 
-    ! function popevery_i2(vec, val) result(res)
-    !   integer(kind=i2), dimension(:), allocatable, intent(in) :: vec
-    !   integer(kind=i2), dimension(:), allocatable :: res
-    !   integer, intent(in) :: val
-    !   integer :: i, j, k
-    !   j = lbound(vec, 1)
-    !   k = (ubound(vec, 1) - j)/val
-    !   do i = j, k, val
-    !     call pop(vec, i-j+val)
-    !   end do
-    ! end function popevery_i2
+    function popevery_i2(vec, val) result(res)
+      integer(kind=i2), dimension(:), allocatable, intent(in) :: vec
+      integer(kind=i2), dimension(:), allocatable :: res
+      integer, intent(in) :: val
+      integer :: i, j, k
+      logical, dimension(:), allocatable :: mask
+      j = lbound(vec, 1)
+      k = ubound(vec, 1)
+      allocate(mask(size(vec)))
+      mask = .false.
+      mask(j:k:val) = .true.
+      res = pack(vec, mask)
+      deallocate(mask)
+    end function popevery_i2
 
-    ! function popevery_i4(vec, val) result(res)
-    !   integer(kind=i4), dimension(:), allocatable, intent(in) :: vec
-    !   integer(kind=i4), dimension(:), allocatable :: res
-    !   integer, intent(in) :: val
-    !   integer :: i, j, k
-    !   j = lbound(vec, 1)
-    !   k = (ubound(vec, 1) - j)/val
-    !   do i = j, k, val
-    !     call pop(vec, i-j+val)
-    !   end do
-    ! end function popevery_i4
+    function popevery_i4(vec, val) result(res)
+      integer(kind=i4), dimension(:), allocatable, intent(in) :: vec
+      integer(kind=i4), dimension(:), allocatable :: res
+      integer, intent(in) :: val
+      integer :: i, j, k
+      logical, dimension(:), allocatable :: mask
+      j = lbound(vec, 1)
+      k = ubound(vec, 1)
+      allocate(mask(size(vec)))
+      mask = .false.
+      mask(j:k:val) = .true.
+      res = pack(vec, mask)
+      deallocate(mask)
+    end function popevery_i4
 
-    ! function popevery_i8(vec, val) result(res)
-    !   integer(kind=i8), dimension(:), allocatable, intent(in) :: vec
-    !   integer(kind=i8), dimension(:), allocatable :: res
-    !   integer, intent(in) :: val
-    !   integer :: i, j, k
-    !   j = lbound(vec, 1)
-    !   k = (ubound(vec, 1) - j)/val
-    !   do i = j, k, val
-    !     call pop(vec, i-j+val)
-    !   end do
-    ! end function popevery_i8
+    function popevery_i8(vec, val) result(res)
+      integer(kind=i8), dimension(:), allocatable, intent(in) :: vec
+      integer(kind=i8), dimension(:), allocatable :: res
+      integer, intent(in) :: val
+      integer :: i, j, k
+      logical, dimension(:), allocatable :: mask
+      j = lbound(vec, 1)
+      k = ubound(vec, 1)
+      allocate(mask(size(vec)))
+      mask = .false.
+      mask(j:k:val) = .true.
+      res = pack(vec, mask)
+      deallocate(mask)
+    end function popevery_i8
+
+    function popevery_r4(vec, val) result(res)
+      real(kind=r4), dimension(:), allocatable, intent(in) :: vec
+      real(kind=r4), dimension(:), allocatable :: res
+      integer, intent(in) :: val
+      integer :: i, j, k
+      logical, dimension(:), allocatable :: mask
+      j = lbound(vec, 1)
+      k = ubound(vec, 1)
+      allocate(mask(size(vec)))
+      mask = .false.
+      mask(j:k:val) = .true.
+      res = pack(vec, mask)
+      deallocate(mask)
+    end function popevery_r4
+
+    function popevery_r8(vec, val) result(res)
+      real(kind=r8), dimension(:), allocatable, intent(in) :: vec
+      real(kind=r8), dimension(:), allocatable :: res
+      integer, intent(in) :: val
+      integer :: i, j, k
+      logical, dimension(:), allocatable :: mask
+      j = lbound(vec, 1)
+      k = ubound(vec, 1)
+      allocate(mask(size(vec)))
+      mask = .false.
+      mask(j:k:val) = .true.
+      res = pack(vec, mask)
+      deallocate(mask)
+    end function popevery_r8
+
+    function popevery_r16(vec, val) result(res)
+      real(kind=r16), dimension(:), allocatable, intent(in) :: vec
+      real(kind=r16), dimension(:), allocatable :: res
+      integer, intent(in) :: val
+      integer :: i, j, k
+      logical, dimension(:), allocatable :: mask
+      j = lbound(vec, 1)
+      k = ubound(vec, 1)
+      allocate(mask(size(vec)))
+      mask = .false.
+      mask(j:k:val) = .true.
+      res = pack(vec, mask)
+      deallocate(mask)
+    end function popevery_r16
+
+    function popevery_c4(vec, val) result(res)
+      complex(kind=r4), dimension(:), allocatable, intent(in) :: vec
+      complex(kind=r4), dimension(:), allocatable :: res
+      integer, intent(in) :: val
+      integer :: i, j, k
+      logical, dimension(:), allocatable :: mask
+      j = lbound(vec, 1)
+      k = ubound(vec, 1)
+      allocate(mask(size(vec)))
+      mask = .false.
+      mask(j:k:val) = .true.
+      res = pack(vec, mask)
+      deallocate(mask)
+    end function popevery_c4
+
+    function popevery_c8(vec, val) result(res)
+      complex(kind=r8), dimension(:), allocatable, intent(in) :: vec
+      complex(kind=r8), dimension(:), allocatable :: res
+      integer, intent(in) :: val
+      integer :: i, j, k
+      logical, dimension(:), allocatable :: mask
+      j = lbound(vec, 1)
+      k = ubound(vec, 1)
+      allocate(mask(size(vec)))
+      mask = .false.
+      mask(j:k:val) = .true.
+      res = pack(vec, mask)
+      deallocate(mask)
+    end function popevery_c8
+
+    function popevery_c16(vec, val) result(res)
+      complex(kind=r16), dimension(:), allocatable, intent(in) :: vec
+      complex(kind=r16), dimension(:), allocatable :: res
+      integer, intent(in) :: val
+      integer :: i, j, k
+      logical, dimension(:), allocatable :: mask
+      j = lbound(vec, 1)
+      k = ubound(vec, 1)
+      allocate(mask(size(vec)))
+      mask = .false.
+      mask(j:k:val) = .true.
+      res = pack(vec, mask)
+      deallocate(mask)
+    end function popevery_c16
+
+    function popevery_str(vec, val) result(res)
+      character(:), dimension(:), allocatable, intent(in) :: vec
+      character(:), dimension(:), allocatable :: res
+      integer, intent(in) :: val
+      integer :: i, j, k
+      logical, dimension(:), allocatable :: mask
+      j = lbound(vec, 1)
+      k = ubound(vec, 1)
+      allocate(mask(size(vec)))
+      mask = .false.
+      mask(j:k:val) = .true.
+      res = pack(vec, mask)
+      deallocate(mask)
+    end function popevery_str
 
 end module vecfun
 

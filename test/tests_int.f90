@@ -27,7 +27,7 @@ module tests_int
         , new_unittest("test for reverse",  test_reverse)  &
         , new_unittest("test for every",    test_every)    &
         , new_unittest("test for zip",      test_zip)      &
-        ! , new_unittest("test for popevery", test_popevery) &
+        , new_unittest("test for popevery", test_popevery) &
       ]
     end subroutine collect_tests_int
 
@@ -135,6 +135,7 @@ module tests_int
       integer                                    :: i
       vec1 = [1, 2, 3]
       vec2 = [1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3]
+      ! res = spread(vec1, 1, 3)(1)
       res = echo(vec1, 3)
       do i = 1, size(vec2)
         call check(error, res(i), vec2(i))
@@ -229,17 +230,17 @@ module tests_int
       end do
     end subroutine test_zip
 
-    ! subroutine test_popevery(error)
-    !   type(error_type), allocatable, intent(out) :: error
-    !   integer, dimension(:), allocatable         :: vec1, vec2
-    !   integer                                    :: i
-    !   vec1 = [1, 2, 3, 4, 5, 6]
-    !   vec2 = [1, 3, 5]
-    !   call popevery(vec1, 2)
-    !   do i = 1, size(vec2)
-    !     call check(error, vec1(i), vec2(i))
-    !     if (allocated(error)) return
-    !   end do
-    ! end subroutine test_popevery
+    subroutine test_popevery(error)
+      type(error_type), allocatable, intent(out) :: error
+      integer, dimension(:), allocatable         :: vec1, vec2, res
+      integer                                    :: i
+      vec1 = [1, 2, 3, 4, 5, 6]
+      vec2 = [1, 3, 5]
+      res = popevery(vec1, 2)
+      do i = 1, size(vec2)
+        call check(error, res(i), vec2(i))
+        if (allocated(error)) return
+      end do
+    end subroutine test_popevery
 
 end module tests_int
