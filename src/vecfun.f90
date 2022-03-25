@@ -22,9 +22,11 @@ module vecfun
   public :: every
   public :: zip
   public :: popevery
+  public :: replace
+  public :: swap
 
   interface push
-    !! adds val pushed to the end of the input vector
+    !! returns a new vector with val pushed to the end of the input vector.
     module procedure push_i1
     module procedure push_i2
     module procedure push_i4
@@ -39,7 +41,7 @@ module vecfun
   end interface push
 
   interface pushto
-    !! adds val pushed to idx of the input vector
+    !! returns a new vector with val pushed to idx of the input vector.
     module procedure pushto_i1
     module procedure pushto_i2
     module procedure pushto_i4
@@ -54,7 +56,7 @@ module vecfun
   end interface pushto
 
   interface pushnew
-    !! adds val pushed to the end of the input vector
+    !! returns a new vector adding val to the input vector
     !! but only if val is not already in the input vector.
     module procedure pushnew_i1
     module procedure pushnew_i2
@@ -70,8 +72,8 @@ module vecfun
   end interface pushnew
 
   interface pop
-    !! delete the last element in the input vector or if idx is provided
-    !! then delete the element at index idx
+    !! returns a new vector by deleting the last element in the input vector,
+    !! or if idx is provided, then delete the element at index idx
     module procedure pop_i1
     module procedure pop_i2
     module procedure pop_i4
@@ -86,6 +88,8 @@ module vecfun
   end interface pop
 
   interface popval
+    !! returns a new vector with val deleted from the input vector. only the
+    !! first val is deleted if there are more vals in the input vector.
     module procedure popval_i1
     module procedure popval_i2
     module procedure popval_i4
@@ -100,6 +104,7 @@ module vecfun
   end interface popval
 
   interface popall
+    !! returns a new vector with all vals deleted from the input vector.
     module procedure popall_i1
     module procedure popall_i2
     module procedure popall_i4
@@ -114,6 +119,7 @@ module vecfun
   end interface popall
 
   interface concat
+    !! returns a new vector joining two input vectors.
     module procedure concat_i1
     module procedure concat_i2
     module procedure concat_i4
@@ -128,6 +134,8 @@ module vecfun
   end interface concat
 
   interface echo
+    !! alternative to spread, it returns a new vector by replicating
+    !! the elements in the input vector val times.
     module procedure echo_i1
     module procedure echo_i2
     module procedure echo_i4
@@ -142,6 +150,8 @@ module vecfun
   end interface echo
 
   interface unique
+    !! returns a new vector compring the unique elements of the input vector.
+    !! a faster implementation is provided for pre-sorted inputs.
     module procedure unique_i1
     module procedure unique_i2
     module procedure unique_i4
@@ -156,6 +166,8 @@ module vecfun
   end interface unique
 
   interface reverse
+    !! returns a new vector reversing the elements of the input.
+    !! alternative to b = a[j:k:-1]
     module procedure reverse_i1
     module procedure reverse_i2
     module procedure reverse_i4
@@ -170,6 +182,8 @@ module vecfun
   end interface reverse
 
   interface every
+    !! returns a new vector comprising every other consecutive val from the input vector.
+    !! for example, every second element consecutively.
     module procedure every_i1
     module procedure every_i2
     module procedure every_i4
@@ -184,6 +198,8 @@ module vecfun
   end interface every
 
   interface zip
+    !! returns a new vector, sequentially joining two other input vectors.
+    !! for example, a=[1,2]; b=[3,4]; c=zip(a,b)=[1,3,2,4]
     module procedure zip_i1
     module procedure zip_i2
     module procedure zip_i4
@@ -198,6 +214,8 @@ module vecfun
   end interface zip
 
   interface popevery
+    !! returns a new vector sequentially deleting every other element
+    !! from the input vector using the fortran pack function.
     module procedure popevery_i1
     module procedure popevery_i2
     module procedure popevery_i4
@@ -210,6 +228,36 @@ module vecfun
     module procedure popevery_c16
     module procedure popevery_str
   end interface popevery
+
+  interface replace
+    !! returns a new vector replacing elements in the input vector.
+    module procedure replace_i1
+    module procedure replace_i2
+    module procedure replace_i4
+    module procedure replace_i8
+    module procedure replace_r4
+    module procedure replace_r8
+    module procedure replace_r16
+    module procedure replace_c4
+    module procedure replace_c8
+    module procedure replace_c16
+    module procedure replace_str
+  end interface replace
+
+  interface swap
+    !! returns a new vector, swapping elements in the input vector.
+    module procedure swap_i1
+    module procedure swap_i2
+    module procedure swap_i4
+    module procedure swap_i8
+    module procedure swap_r4
+    module procedure swap_r8
+    module procedure swap_r16
+    module procedure swap_c4
+    module procedure swap_c8
+    module procedure swap_c16
+    module procedure swap_str
+  end interface swap
 
   contains
 
@@ -1975,6 +2023,292 @@ module vecfun
       res = pack(vec, mask)
       deallocate(mask)
     end function popevery_str
+
+    function replace_i1(vec, val1, val2) result(res)
+      integer(kind=i1), dimension(:), allocatable, intent(in) :: vec
+      integer(kind=i1), dimension(:), allocatable :: res
+      integer(kind=i1) :: val1, val2
+      res = vec
+      where(vec.eq.val1) res = val2
+    end function replace_i1
+
+    function replace_i2(vec, val1, val2) result(res)
+      integer(kind=i2), dimension(:), allocatable, intent(in) :: vec
+      integer(kind=i2), dimension(:), allocatable :: res
+      integer(kind=i2) :: val1, val2
+      res = vec
+      where(vec.eq.val1) res = val2
+    end function replace_i2
+
+    function replace_i4(vec, val1, val2) result(res)
+      integer(kind=i4), dimension(:), allocatable, intent(in) :: vec
+      integer(kind=i4), dimension(:), allocatable :: res
+      integer(kind=i4) :: val1, val2
+      res = vec
+      where(vec.eq.val1) res = val2
+    end function replace_i4
+
+    function replace_i8(vec, val1, val2) result(res)
+      integer(kind=i8), dimension(:), allocatable, intent(in) :: vec
+      integer(kind=i8), dimension(:), allocatable :: res
+      integer(kind=i8) :: val1, val2
+      res = vec
+      where(vec.eq.val1) res = val2
+    end function replace_i8
+
+    function replace_r4(vec, val1, val2) result(res)
+      real(kind=r4), dimension(:), allocatable, intent(in) :: vec
+      real(kind=r4), dimension(:), allocatable :: res
+      real(kind=r4) :: val1, val2
+      res = vec
+      where(vec.eq.val1) res = val2
+    end function replace_r4
+
+    function replace_r8(vec, val1, val2) result(res)
+      real(kind=r8), dimension(:), allocatable, intent(in) :: vec
+      real(kind=r8), dimension(:), allocatable :: res
+      real(kind=r8) :: val1, val2
+      res = vec
+      where(vec.eq.val1) res = val2
+    end function replace_r8
+
+    function replace_r16(vec, val1, val2) result(res)
+      real(kind=r16), dimension(:), allocatable, intent(in) :: vec
+      real(kind=r16), dimension(:), allocatable :: res
+      real(kind=r16) :: val1, val2
+      res = vec
+      where(vec.eq.val1) res = val2
+    end function replace_r16
+
+    function replace_c4(vec, val1, val2) result(res)
+      complex(kind=r4), dimension(:), allocatable, intent(in) :: vec
+      complex(kind=r4), dimension(:), allocatable :: res
+      complex(kind=r4) :: val1, val2
+      res = vec
+      where(vec.eq.val1) res = val2
+    end function replace_c4
+
+    function replace_c8(vec, val1, val2) result(res)
+      complex(kind=r8), dimension(:), allocatable, intent(in) :: vec
+      complex(kind=r8), dimension(:), allocatable :: res
+      complex(kind=r8) :: val1, val2
+      res = vec
+      where(vec.eq.val1) res = val2
+    end function replace_c8
+
+    function replace_c16(vec, val1, val2) result(res)
+      complex(kind=r16), dimension(:), allocatable, intent(in) :: vec
+      complex(kind=r16), dimension(:), allocatable :: res
+      complex(kind=r16) :: val1, val2
+      res = vec
+      where(vec.eq.val1) res = val2
+    end function replace_c16
+
+    function replace_str(vec, val1, val2) result(res)
+      character(:), dimension(:), allocatable, intent(in) :: vec
+      character(:), dimension(:), allocatable :: res
+      character(*) :: val1, val2
+      res = vec
+      where(vec.eq.val1) res = val2
+    end function replace_str
+
+    function swap_i1(vec, val1, val2) result(res)
+      integer(kind=i1), dimension(:), allocatable, intent(in) :: vec
+      integer(kind=i1), dimension(:), allocatable :: res
+      integer(kind=i1) :: val1, val2
+      logical, dimension(:), allocatable :: mask1, mask2
+      allocate(mask1(size(vec)))
+      allocate(mask2(size(vec)))
+      mask1 = .false.
+      mask2 = .false.
+      where(vec.eq.val1) mask1 = .true.
+      where(vec.eq.val2) mask2 = .true.
+      res = vec
+      where(mask1) res = val2
+      where(mask2) res = val1
+      deallocate(mask1)
+      deallocate(mask2)
+    end function swap_i1
+
+    function swap_i2(vec, val1, val2) result(res)
+      integer(kind=i2), dimension(:), allocatable, intent(in) :: vec
+      integer(kind=i2), dimension(:), allocatable :: res
+      integer(kind=i2) :: val1, val2
+      logical, dimension(:), allocatable :: mask1, mask2
+      allocate(mask1(size(vec)))
+      allocate(mask2(size(vec)))
+      mask1 = .false.
+      mask2 = .false.
+      where(vec.eq.val1) mask1 = .true.
+      where(vec.eq.val2) mask2 = .true.
+      res = vec
+      where(mask1) res = val2
+      where(mask2) res = val1
+      deallocate(mask1)
+      deallocate(mask2)
+    end function swap_i2
+
+    function swap_i4(vec, val1, val2) result(res)
+      integer(kind=i4), dimension(:), allocatable, intent(in) :: vec
+      integer(kind=i4), dimension(:), allocatable :: res
+      integer(kind=i4) :: val1, val2
+      logical, dimension(:), allocatable :: mask1, mask2
+      allocate(mask1(size(vec)))
+      allocate(mask2(size(vec)))
+      mask1 = .false.
+      mask2 = .false.
+      where(vec.eq.val1) mask1 = .true.
+      where(vec.eq.val2) mask2 = .true.
+      res = vec
+      where(mask1) res = val2
+      where(mask2) res = val1
+      deallocate(mask1)
+      deallocate(mask2)
+    end function swap_i4
+
+    function swap_i8(vec, val1, val2) result(res)
+      integer(kind=i8), dimension(:), allocatable, intent(in) :: vec
+      integer(kind=i8), dimension(:), allocatable :: res
+      integer(kind=i8) :: val1, val2
+      logical, dimension(:), allocatable :: mask1, mask2
+      allocate(mask1(size(vec)))
+      allocate(mask2(size(vec)))
+      mask1 = .false.
+      mask2 = .false.
+      where(vec.eq.val1) mask1 = .true.
+      where(vec.eq.val2) mask2 = .true.
+      res = vec
+      where(mask1) res = val2
+      where(mask2) res = val1
+      deallocate(mask1)
+      deallocate(mask2)
+    end function swap_i8
+
+    function swap_r4(vec, val1, val2) result(res)
+      real(kind=r4), dimension(:), allocatable, intent(in) :: vec
+      real(kind=r4), dimension(:), allocatable :: res
+      real(kind=r4) :: val1, val2
+      logical, dimension(:), allocatable :: mask1, mask2
+      allocate(mask1(size(vec)))
+      allocate(mask2(size(vec)))
+      mask1 = .false.
+      mask2 = .false.
+      where(vec.eq.val1) mask1 = .true.
+      where(vec.eq.val2) mask2 = .true.
+      res = vec
+      where(mask1) res = val2
+      where(mask2) res = val1
+      deallocate(mask1)
+      deallocate(mask2)
+    end function swap_r4
+
+    function swap_r8(vec, val1, val2) result(res)
+      real(kind=r8), dimension(:), allocatable, intent(in) :: vec
+      real(kind=r8), dimension(:), allocatable :: res
+      real(kind=r8) :: val1, val2
+      logical, dimension(:), allocatable :: mask1, mask2
+      allocate(mask1(size(vec)))
+      allocate(mask2(size(vec)))
+      mask1 = .false.
+      mask2 = .false.
+      where(vec.eq.val1) mask1 = .true.
+      where(vec.eq.val2) mask2 = .true.
+      res = vec
+      where(mask1) res = val2
+      where(mask2) res = val1
+      deallocate(mask1)
+      deallocate(mask2)
+    end function swap_r8
+
+    function swap_r16(vec, val1, val2) result(res)
+      real(kind=r16), dimension(:), allocatable, intent(in) :: vec
+      real(kind=r16), dimension(:), allocatable :: res
+      real(kind=r16) :: val1, val2
+      logical, dimension(:), allocatable :: mask1, mask2
+      allocate(mask1(size(vec)))
+      allocate(mask2(size(vec)))
+      mask1 = .false.
+      mask2 = .false.
+      where(vec.eq.val1) mask1 = .true.
+      where(vec.eq.val2) mask2 = .true.
+      res = vec
+      where(mask1) res = val2
+      where(mask2) res = val1
+      deallocate(mask1)
+      deallocate(mask2)
+    end function swap_r16
+
+    function swap_c4(vec, val1, val2) result(res)
+      complex(kind=r4), dimension(:), allocatable, intent(in) :: vec
+      complex(kind=r4), dimension(:), allocatable :: res
+      complex(kind=r4) :: val1, val2
+      logical, dimension(:), allocatable :: mask1, mask2
+      allocate(mask1(size(vec)))
+      allocate(mask2(size(vec)))
+      mask1 = .false.
+      mask2 = .false.
+      where(vec.eq.val1) mask1 = .true.
+      where(vec.eq.val2) mask2 = .true.
+      res = vec
+      where(mask1) res = val2
+      where(mask2) res = val1
+      deallocate(mask1)
+      deallocate(mask2)
+    end function swap_c4
+
+    function swap_c8(vec, val1, val2) result(res)
+      complex(kind=r8), dimension(:), allocatable, intent(in) :: vec
+      complex(kind=r8), dimension(:), allocatable :: res
+      complex(kind=r8) :: val1, val2
+      logical, dimension(:), allocatable :: mask1, mask2
+      allocate(mask1(size(vec)))
+      allocate(mask2(size(vec)))
+      mask1 = .false.
+      mask2 = .false.
+      where(vec.eq.val1) mask1 = .true.
+      where(vec.eq.val2) mask2 = .true.
+      res = vec
+      where(mask1) res = val2
+      where(mask2) res = val1
+      deallocate(mask1)
+      deallocate(mask2)
+    end function swap_c8
+
+    function swap_c16(vec, val1, val2) result(res)
+      complex(kind=r16), dimension(:), allocatable, intent(in) :: vec
+      complex(kind=r16), dimension(:), allocatable :: res
+      complex(kind=r16) :: val1, val2
+      logical, dimension(:), allocatable :: mask1, mask2
+      allocate(mask1(size(vec)))
+      allocate(mask2(size(vec)))
+      mask1 = .false.
+      mask2 = .false.
+      where(vec.eq.val1) mask1 = .true.
+      where(vec.eq.val2) mask2 = .true.
+      res = vec
+      where(mask1) res = val2
+      where(mask2) res = val1
+      deallocate(mask1)
+      deallocate(mask2)
+    end function swap_c16
+
+    function swap_str(vec, val1, val2) result(res)
+      character(:), dimension(:), allocatable, intent(in) :: vec
+      character(:), dimension(:), allocatable :: res
+      character(*) :: val1, val2
+      logical, dimension(:), allocatable :: mask1, mask2
+      allocate(mask1(size(vec)))
+      allocate(mask2(size(vec)))
+      mask1 = .false.
+      mask2 = .false.
+      where(vec.eq.val1) mask1 = .true.
+      where(vec.eq.val2) mask2 = .true.
+      res = vec
+      where(mask1) res = val2
+      where(mask2) res = val1
+      deallocate(mask1)
+      deallocate(mask2)
+    end function swap_str
 
 end module vecfun
 

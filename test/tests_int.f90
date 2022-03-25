@@ -28,6 +28,8 @@ module tests_int
         , new_unittest("test for every",    test_every)    &
         , new_unittest("test for zip",      test_zip)      &
         , new_unittest("test for popevery", test_popevery) &
+        , new_unittest("test for replace",  test_replace)  &
+        , new_unittest("test for swap",     test_swap)     &
       ]
     end subroutine collect_tests_int
 
@@ -242,5 +244,31 @@ module tests_int
         if (allocated(error)) return
       end do
     end subroutine test_popevery
+
+    subroutine test_replace(error)
+      type(error_type), allocatable, intent(out) :: error
+      integer, dimension(:), allocatable         :: vec1, vec2, res
+      integer                                    :: i
+      vec1 = [1, 2, 3, 2, 5, 2]
+      vec2 = [1, 3, 3, 3, 5, 3]
+      res = replace(vec1, 2, 3)
+      do i = 1, size(vec2)
+        call check(error, res(i), vec2(i))
+        if (allocated(error)) return
+      end do
+    end subroutine test_replace
+
+    subroutine test_swap(error)
+      type(error_type), allocatable, intent(out) :: error
+      integer, dimension(:), allocatable         :: vec1, vec2, res
+      integer                                    :: i
+      vec1 = [1, 2, 3, 4, 3, 6]
+      vec2 = [3, 2, 1, 4, 1, 6]
+      res = swap(vec1, 1, 3)
+      do i = 1, size(vec2)
+        call check(error, res(i), vec2(i))
+        if (allocated(error)) return
+      end do
+    end subroutine test_swap
 
 end module tests_int

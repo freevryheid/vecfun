@@ -1,7 +1,28 @@
 # vecfun
-fortran vector functions
+fortran vector functions - a vector being defined as a 1 dim array.
 
-a vector being defined as a 1 dim array.
+this library of vector functions was developed to experiment with
+dynamic arrays in modern fortran. the inspiration for this was the excellent
+[functional-fortran library] (https://github.com/wavebitscientific/functional-fortran).
+use that instead.
+
+## functions
+
+the following functions are defined:
+
+### push
+
+returns a new vector with val pushed to the end of the input vector.
+
+
+```
+integer, dimension(:), allocatable :: vec, res
+vec1 = [1,2,3]
+res = push(vec1, 4)
+print *, res ! [1,2,3,4]
+end
+```
+
 
 so far the following are defined:
 
