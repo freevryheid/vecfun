@@ -208,6 +208,8 @@ $ ford vecfun.md
 
 Open `doc/index.html` in a web browser.
 
+or click [here](https://freevryheid.github.io/vecfun/index.html).
+
 ## tests
 
 fpm test currently only tests integer vectors.
