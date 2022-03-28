@@ -185,7 +185,9 @@ vecfun.git = "https://github.com/freevryheid/vecfun"
 
 ## documentation
 
-Generate the source code documentation with
+[here](https://freevryheid.github.io/vecfun/index.html).
+
+You can also generate the source code documentation with
 [FORD](https://github.com/cmacmackin/ford). Add FORD with `pip`, for example:
 
 ```
@@ -207,8 +209,6 @@ $ ford vecfun.md
 ```
 
 Open `doc/index.html` in a web browser.
-
-or click [here](https://freevryheid.github.io/vecfun/index.html).
 
 ## tests
 
